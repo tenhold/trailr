@@ -458,63 +458,89 @@ const addTrail = (trailObject) =>
                 resolve(error);
               });
             }
-            if (trailResult.length > 0) {
-              connection.commit((error) => {
+            connection.release();
+            resolve({
+              message: 'Existing trail. Use id listed here with getTrail(id) to lookup trail or updateTrail(id) to update trail.',
+              id: trailResult[0].id,
+            });
+          });
+      } else if (!trailResult.length) {
+        connection.query(addTrailCommand,
+          [
+            trailObject.api_id,
+            trailObject.name,
+            trailObject.city,
+            trailObject.region,
+            trailObject.country,
+            trailObject.latitude,
+            trailObject.longitude,
+            trailObject.url,
+            trailObject.thumbnail,
+            trailObject.description,
+          ],
+          (error, addedTrail) => {
+            if (error) {
+              connection.rollback(() => {
+                connection.release();
+                resolve(error);
+              });
+            }
+            connection.commit((error) => {
+              if (error) {
+                connection.rollback(() => {
+                  connection.release();
+                  resolve(error);
+                });
+              }
+              connection.release();
+              resolve({
+                message:
+                  'Existing trail. Use id listed here with getTrail(id) to lookup trail or updateTrail(id) to update trail.',
+                id: trailResult[0].id,
+              });
+            });
+          } else if (!trailResult.length) {
+            connection.query(
+              addTrailCommand,
+              [
+                trailObject.api_id,
+                trailObject.name,
+                trailObject.city,
+                trailObject.region,
+                trailObject.country,
+                trailObject.latitude,
+                trailObject.longitude,
+                trailObject.url,
+                trailObject.thumbnail,
+                trailObject.description,
+              ],
+              (error, addedTrail) => {
                 if (error) {
                   connection.rollback(() => {
                     connection.release();
                     resolve(error);
                   });
                 }
-                connection.release();
-                resolve({
-                  message:
-                    'Existing trail. Use id listed here with getTrail(id) to lookup trail or updateTrail(id) to update trail.',
-                  id: trailResult[0].id,
-                });
-              });
-            } else if (!trailResult.length) {
-              connection.query(
-                addTrailCommand,
-                [
-                  trailObject.api_id,
-                  trailObject.name,
-                  trailObject.city,
-                  trailObject.region,
-                  trailObject.country,
-                  trailObject.latitude,
-                  trailObject.longitude,
-                  trailObject.url,
-                  trailObject.thumbnail,
-                  trailObject.description,
-                ],
-                (error, addedTrail) => {
+                connection.commit((error) => {
                   if (error) {
                     connection.rollback(() => {
                       connection.release();
                       resolve(error);
                     });
                   }
-                  connection.commit((error) => {
-                    if (error) {
-                      connection.rollback(() => {
-                        connection.release();
-                        resolve(error);
-                      });
-                    }
 
-                    const addTrailResult = addedTrail
-                      ? { id: addedTrail.insertId }
-                      : { id: null, affectedRows: 0 };
-                    connection.release();
-                    resolve(addTrailResult);
-                  });
-                }
-              );
-            }
+                  const addTrailResult = addedTrail
+                    ? { id: addedTrail.insertId }
+                    : { id: null, affectedRows: 0 };
+                  connection.release();
+                  resolve(addTrailResult);
+                });
+              }
+            );
           }
+      }
         );
-      });
+  });
     });
   });
 
@@ -550,8 +576,7 @@ const updateTrail = (trailObject) =>
             resolve(error);
           });
         }
-        connection.query(
-          updateTrailCommand,
+        connection.query(updateTrailCommand,
           [
             trailObject.api_id,
             trailObject.name,
@@ -580,487 +605,329 @@ const updateTrail = (trailObject) =>
                   resolve(error);
                 });
               }
-              const updateTrailResult = updatedTrail || [
-                { id: null, affectedRows: 0 },
-              ];
-              connection.release();
-              resolve(updateTrailResult);
-            });
-          }
-        );
+              connection.commit((error) => {
+                if (error) {
+                  connection.rollback(() => {
+                    connection.release();
+                    resolve(error);
+                  });
+                }
+                const updateTrailResult = updatedTrail || [
+                  { id: null, affectedRows: 0 },
+                ];
+                connection.release();
+                resolve(updateTrailResult);
+              });
+            }
+            );
+          });
       });
     });
-  });
 
-/**
- * Deletes trail by id.
- */
-const deleteTrail = (id) =>
-  new Promise((resolve, reject) => {
-    poolConnection.getConnection((error, connection) => {
-      if (error) reject(error);
+    /**
+     * Deletes trail by id.
+     */
+    const deleteTrail = (id) =>
+      new Promise((resolve, reject) => {
+        poolConnection.getConnection((error, connection) => {
+          if (error) reject(error);
 
-      const deleteTrailCommand = `
+          const deleteTrailCommand = `
       DELETE FROM trails
       WHERE id = ?
     `;
-      connection.beginTransaction((error) => {
-        if (error) {
-          connection.rollback(() => {
-            connection.release();
-            resolve(error);
-          });
-        }
-        connection.query(
-          deleteTrailCommand,
-          [id],
-          (error, deletedTrailData) => {
+          connection.beginTransaction((error) => {
             if (error) {
               connection.rollback(() => {
                 connection.release();
                 resolve(error);
               });
             }
-            connection.commit((error) => {
-              if (error) {
-                connection.rollback(() => {
+            connection.query(
+              deleteTrailCommand,
+              [id],
+              (error, deletedTrailData) => {
+                if (error) {
+                  connection.rollback(() => {
+                    connection.release();
+                    resolve(error);
+                  });
+                }
+                connection.commit((error) => {
+                  if (error) {
+                    connection.rollback(() => {
+                      connection.release();
+                      resolve(error);
+                    });
+                  }
                   connection.release();
-                  resolve(error);
+                  resolve(deletedTrailData);
                 });
               }
-              connection.release();
-              resolve(deletedTrailData);
-            });
-          }
-        );
+            );
+          });
+        });
       });
-    });
-  });
 
-/**
- * Searches for user's difficulty rating for a specified trail. Adds difficulty rating if not found.
- * Updates difficulty rating if found.
- */
-const updateDifficulty = (difficultyObject) =>
-  new Promise((resolve, reject) => {
-    poolConnection.getConnection((error, connection) => {
-      if (error) reject(error);
+    /**
+     * Searches for user's difficulty rating for a specified trail. Adds difficulty rating if not found.
+     * Updates difficulty rating if found.
+     */
+    const updateDifficulty = (difficultyObject) =>
+      new Promise((resolve, reject) => {
+        poolConnection.getConnection((error, connection) => {
+          if (error) reject(error);
 
-      const { id_user, id_trail, value } = difficultyObject;
+          const { id_user, id_trail, value } = difficultyObject;
 
-      const checkDifficultyCommand = `
+          const checkDifficultyCommand = `
       SELECT *
       FROM rating_difficulty
       WHERE id_user = ? AND id_trail = ?
     `;
 
-      const addDifficultyCommand = `
+          const addDifficultyCommand = `
       INSERT INTO rating_difficulty (id_user, id_trail, value)
       VALUES (?, ?, ?)
     `;
 
-      const updateDifficultyCommand = `
+          const updateDifficultyCommand = `
       UPDATE rating_difficulty
       SET value = ?
       WHERE id_user = ? AND id_trail = ?
     `;
 
-      const getAvgDiffCommand = `
+          const getAvgDiffCommand = `
         SELECT CAST(CAST(ROUND(AVG(value), 1) AS DECIMAL(2,1)) AS CHAR) AS averageDifficulty
         FROM rating_difficulty
         WHERE id_trail = ?
     `;
 
-      connection.beginTransaction((error) => {
-        if (error) {
-          connection.rollback(() => {
-            connection.release();
-            resolve(error);
-          });
-        }
-        connection.query(
-          checkDifficultyCommand,
-          [id_user, id_trail],
-          (error, difficultyResult) => {
+          connection.beginTransaction((error) => {
             if (error) {
               connection.rollback(() => {
                 connection.release();
                 resolve(error);
               });
             }
-            let affectedRows;
-            let message;
-            if (!difficultyResult.length) {
-              connection.query(
-                addDifficultyCommand,
-                [id_user, id_trail, value],
-                (error, addDiffMessage) => {
-                  if (error) {
-                    connection.rollback(() => {
-                      connection.release();
-                      resolve(error);
-                    });
-                  }
-                  affectedRows = addDiffMessage
-                    ? addDiffMessage.affectedRows
-                    : 0;
-                  message = addDiffMessage ? addDiffMessage.message : 0;
-                }
-              );
-            } else if (difficultyResult.length > 0) {
-              connection.query(
-                updateDifficultyCommand,
-                [value, id_user, id_trail],
-                (error, updateDiffMessage) => {
-                  if (error) {
-                    connection.rollback(() => {
-                      connection.release();
-                      resolve(error);
-                    });
-                  }
-                  affectedRows = updateDiffMessage
-                    ? updateDiffMessage.affectedRows
-                    : 0;
-                  message = updateDiffMessage ? updateDiffMessage.message : 0;
-                }
-              );
-            }
             connection.query(
-              getAvgDiffCommand,
-              [id_trail],
-              (error, newDiffAverage) => {
+              checkDifficultyCommand,
+              [id_user, id_trail],
+              (error, difficultyResult) => {
                 if (error) {
                   connection.rollback(() => {
                     connection.release();
                     resolve(error);
                   });
                 }
-                connection.commit((error) => {
-                  if (error) {
-                    connection.rollback(() => {
+                let affectedRows;
+                let message;
+                if (!difficultyResult.length) {
+                  connection.query(
+                    addDifficultyCommand,
+                    [id_user, id_trail, value],
+                    (error, addDiffMessage) => {
+                      if (error) {
+                        connection.rollback(() => {
+                          connection.release();
+                          resolve(error);
+                        });
+                      }
+                      affectedRows = addDiffMessage
+                        ? addDiffMessage.affectedRows
+                        : 0;
+                      message = addDiffMessage ? addDiffMessage.message : 0;
+                    }
+                  );
+                } else if (difficultyResult.length > 0) {
+                  connection.query(
+                    updateDifficultyCommand,
+                    [value, id_user, id_trail],
+                    (error, updateDiffMessage) => {
+                      if (error) {
+                        connection.rollback(() => {
+                          connection.release();
+                          resolve(error);
+                        });
+                      }
+                      affectedRows = updateDiffMessage
+                        ? updateDiffMessage.affectedRows
+                        : 0;
+                      message = updateDiffMessage ? updateDiffMessage.message : 0;
+                    }
+                  );
+                }
+                connection.query(
+                  getAvgDiffCommand,
+                  [id_trail],
+                  (error, newDiffAverage) => {
+                    if (error) {
+                      connection.rollback(() => {
+                        connection.release();
+                        resolve(error);
+                      });
+                    }
+                    connection.commit((error) => {
+                      if (error) {
+                        connection.rollback(() => {
+                          connection.release();
+                          resolve(error);
+                        });
+                      }
+                      const newDiffReturn = newDiffAverage[0]
+                        ? newDiffAverage
+                        : [{}];
+                      newDiffReturn[0].affectedRows = affectedRows;
+                      newDiffReturn[0].queryMessage = message;
                       connection.release();
-                      resolve(error);
+                      resolve(newDiffReturn);
                     });
                   }
-                  const newDiffReturn = newDiffAverage[0]
-                    ? newDiffAverage
-                    : [{}];
-                  newDiffReturn[0].affectedRows = affectedRows;
-                  newDiffReturn[0].queryMessage = message;
-                  connection.release();
-                  resolve(newDiffReturn);
-                });
+                );
               }
             );
-          }
-        );
+          });
+        });
       });
-    });
-  });
 
-/**
- * Searches for user's likeability rating for a specified trail. Adds likeability rating if not
- * found. Updates difficulty rating if found.
- */
-const updateLikeability = (likeabilityObject) =>
-  new Promise((resolve, reject) => {
-    poolConnection.getConnection((error, connection) => {
-      if (error) reject(error);
+    /**
+     * Searches for user's likeability rating for a specified trail. Adds likeability rating if not
+     * found. Updates difficulty rating if found.
+     */
+    const updateLikeability = (likeabilityObject) =>
+      new Promise((resolve, reject) => {
+        poolConnection.getConnection((error, connection) => {
+          if (error) reject(error);
 
-      const { id_user, id_trail, value } = likeabilityObject;
+          const { id_user, id_trail, value } = likeabilityObject;
 
-      const checkLikeabilityCommand = `
+          const checkLikeabilityCommand = `
       SELECT *
       FROM rating_likeability
       WHERE id_user = ? AND id_trail = ?
     `;
 
-      const addLikeabilityCommand = `
+          const addLikeabilityCommand = `
       INSERT INTO rating_likeability (id_user, id_trail, value)
       VALUES (?, ?, ?)
     `;
 
-      const updateLikeabilityCommand = `
+          const updateLikeabilityCommand = `
       UPDATE rating_likeability
       SET value = ?
       WHERE id_user = ? AND id_trail = ?
     `;
 
-      const getAvgLikeCommand = `
+          const getAvgLikeCommand = `
       SELECT CAST(CAST(ROUND(AVG(value), 1) AS DECIMAL(2,1)) AS CHAR) AS averageLikeability
       FROM rating_likeability
       WHERE id_trail = ?
   `;
 
-      connection.beginTransaction((error) => {
-        if (error) {
-          connection.rollback(() => {
-            connection.release();
-            resolve(error);
-          });
-        }
-        connection.query(
-          checkLikeabilityCommand,
-          [id_user, id_trail],
-          (error, likeabilityResult) => {
+          connection.beginTransaction((error) => {
             if (error) {
               connection.rollback(() => {
                 connection.release();
                 resolve(error);
               });
             }
-            let affectedRows;
-            let message;
-            if (!likeabilityResult.length) {
-              connection.query(
-                addLikeabilityCommand,
-                [id_user, id_trail, value],
-                (error, addLikeMessage) => {
-                  if (error) {
-                    connection.rollback(() => {
-                      connection.release();
-                      resolve(error);
-                    });
-                  }
-                  affectedRows = addLikeMessage
-                    ? addLikeMessage.affectedRows
-                    : 0;
-                  message = addLikeMessage ? addLikeMessage.message : 0;
-                }
-              );
-            } else if (likeabilityResult.length > 0) {
-              connection.query(
-                updateLikeabilityCommand,
-                [value, id_user, id_trail],
-                (error, updateLikeMessage) => {
-                  if (error) {
-                    connection.rollback(() => {
-                      connection.release();
-                      resolve(error);
-                    });
-                  }
-                  affectedRows = updateLikeMessage
-                    ? updateLikeMessage.affectedRows
-                    : 0;
-                  message = updateLikeMessage ? updateLikeMessage.message : 0;
-                }
-              );
-            }
             connection.query(
-              getAvgLikeCommand,
-              [id_trail],
-              (error, newLikeAverage) => {
+              checkLikeabilityCommand,
+              [id_user, id_trail],
+              (error, likeabilityResult) => {
                 if (error) {
                   connection.rollback(() => {
                     connection.release();
                     resolve(error);
                   });
                 }
-                connection.commit((error) => {
-                  if (error) {
-                    connection.rollback(() => {
+                let affectedRows;
+                let message;
+                if (!likeabilityResult.length) {
+                  connection.query(
+                    addLikeabilityCommand,
+                    [id_user, id_trail, value],
+                    (error, addLikeMessage) => {
+                      if (error) {
+                        connection.rollback(() => {
+                          connection.release();
+                          resolve(error);
+                        });
+                      }
+                      affectedRows = addLikeMessage
+                        ? addLikeMessage.affectedRows
+                        : 0;
+                      message = addLikeMessage ? addLikeMessage.message : 0;
+                    }
+                  );
+                } else if (likeabilityResult.length > 0) {
+                  connection.query(
+                    updateLikeabilityCommand,
+                    [value, id_user, id_trail],
+                    (error, updateLikeMessage) => {
+                      if (error) {
+                        connection.rollback(() => {
+                          connection.release();
+                          resolve(error);
+                        });
+                      }
+                      affectedRows = updateLikeMessage
+                        ? updateLikeMessage.affectedRows
+                        : 0;
+                      message = updateLikeMessage ? updateLikeMessage.message : 0;
+                    }
+                  );
+                }
+                connection.query(
+                  getAvgLikeCommand,
+                  [id_trail],
+                  (error, newLikeAverage) => {
+                    if (error) {
+                      connection.rollback(() => {
+                        connection.release();
+                        resolve(error);
+                      });
+                    }
+                    connection.commit((error) => {
+                      if (error) {
+                        connection.rollback(() => {
+                          connection.release();
+                          resolve(error);
+                        });
+                      }
+                      const newLikeReturn = newLikeAverage[0]
+                        ? newLikeAverage
+                        : [{}];
+                      newLikeReturn[0].affectedRows = affectedRows;
+                      newLikeReturn[0].message = message;
                       connection.release();
-                      resolve(error);
+                      resolve(newLikeReturn);
                     });
                   }
-                  const newLikeReturn = newLikeAverage[0]
-                    ? newLikeAverage
-                    : [{}];
-                  newLikeReturn[0].affectedRows = affectedRows;
-                  newLikeReturn[0].message = message;
-                  connection.release();
-                  resolve(newLikeReturn);
-                });
+                );
               }
             );
-          }
-        );
+          });
+        });
       });
-    });
-  });
 
-/**
- * Adds photo comment. If successful, returns an object containing inserted comment's id. Otherwise,
- * returns error message or object containing affectedRows: 0.
- */
-const addComment = (commentObject) =>
-  new Promise((resolve, reject) => {
-    poolConnection.getConnection((error, connection) => {
-      if (error) reject(error);
+    /**
+     * Adds photo comment. If successful, returns an object containing inserted comment's id. Otherwise,
+     * returns error message or object containing affectedRows: 0.
+     */
+    const addComment = (commentObject) =>
+      new Promise((resolve, reject) => {
+        poolConnection.getConnection((error, connection) => {
+          if (error) reject(error);
 
-      const { text, id_user, id_photo } = commentObject;
+          const { text, id_user, id_photo } = commentObject;
 
-      const addCommentCommand = `
+          const addCommentCommand = `
       INSERT INTO comments (text, id_user, id_photo)
       VALUES (?, ?, ?)
     `;
 
-      connection.beginTransaction((error) => {
-        if (error) {
-          connection.rollback(() => {
-            connection.release();
-            resolve(error);
-          });
-        }
-        connection.query(
-          addCommentCommand,
-          [text, id_user, id_photo],
-          (error, addedComment) => {
-            if (error) {
-              connection.rollback(() => {
-                connection.release();
-                resolve(error);
-              });
-            }
-            connection.commit((error) => {
-              if (error) {
-                connection.rollback(() => {
-                  connection.release();
-                  resolve(error);
-                });
-              }
-              const addCommentResult = addedComment
-                ? { id: addedComment.insertId }
-                : { id: null, affectedRows: 0 };
-              connection.release();
-              resolve(addCommentResult);
-            });
-          }
-        );
-      });
-    });
-  });
-
-/**
- * Adds photo after photo is uploaded to storage bucket. If successful, returns an object containing
- * inserted photo's id. Otherwise, returns error message or object containing affectedRows: 0.
- */
-const addPhoto = (photoObject) =>
-  new Promise((resolve, reject) => {
-    poolConnection.getConnection((error, connection) => {
-      if (error) reject(error);
-
-      const addPhotoCommand = `
-      INSERT INTO photos (url, description, lat, lng, id_user, id_trail)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `;
-
-      connection.beginTransaction((error) => {
-        if (error) {
-          connection.rollback(() => {
-            connection.release();
-            resolve(error);
-          });
-        }
-        connection.query(
-          addPhotoCommand,
-          [
-            photoObject.url,
-            photoObject.description,
-            photoObject.lat,
-            photoObject.lng,
-            photoObject.id_user,
-            photoObject.id_trail,
-          ],
-          (error, addedPhoto) => {
-            if (error) {
-              connection.rollback(() => {
-                connection.release();
-                resolve(error);
-              });
-            }
-            connection.commit((error) => {
-              if (error) {
-                connection.rollback(() => {
-                  connection.release();
-                  resolve(error);
-                });
-              }
-              const addPhotoResult = addedPhoto
-                ? { id: addedPhoto.insertId }
-                : { id: null, affectedRows: 0 };
-              connection.release();
-              resolve(addPhotoResult);
-            });
-          }
-        );
-      });
-    });
-  });
-
-/**
- * Deletes comment by id.
- */
-const deleteComment = (id) =>
-  new Promise((resolve, reject) => {
-    poolConnection.getConnection((error, connection) => {
-      if (error) reject(error);
-
-      const deleteCommentCommand = `
-      DELETE FROM comments
-      WHERE id = ?
-    `;
-      connection.beginTransaction((error) => {
-        if (error) {
-          connection.rollback(() => {
-            connection.release();
-            resolve(error);
-          });
-        }
-        connection.query(
-          deleteCommentCommand,
-          [id],
-          (error, deletedCommentData) => {
-            if (error) {
-              connection.rollback(() => {
-                connection.release();
-                resolve(error);
-              });
-            }
-            connection.commit((error) => {
-              if (error) {
-                connection.rollback(() => {
-                  connection.release();
-                  resolve(error);
-                });
-              }
-              connection.release();
-              resolve(deletedCommentData);
-            });
-          }
-        );
-      });
-    });
-  });
-
-/**
- * Deletes photo and all associated comments by photo id.
- */
-const deletePhoto = (id) =>
-  new Promise((resolve, reject) => {
-    poolConnection.getConnection((error, connection) => {
-      if (error) reject(error);
-
-      const deleteCommentsCommand = `
-      DELETE FROM comments
-      where id_photo = ?
-  `;
-      const deletePhotoCommand = `
-      DELETE FROM photos
-      WHERE id = ?
-    `;
-
-      connection.beginTransaction((error) => {
-        if (error) {
-          connection.rollback(() => {
-            connection.release();
-            resolve(error);
-          });
-        }
-        connection.query(
-          deleteCommentsCommand,
-          [id],
-          (error, deletedCommentData) => {
+          connection.beginTransaction((error) => {
             if (error) {
               connection.rollback(() => {
                 connection.release();
@@ -1068,9 +935,9 @@ const deletePhoto = (id) =>
               });
             }
             connection.query(
-              deletePhotoCommand,
-              [id],
-              (error, deletedPhotoData) => {
+              addCommentCommand,
+              [text, id_user, id_photo],
+              (error, addedComment) => {
                 if (error) {
                   connection.rollback(() => {
                     connection.release();
@@ -1084,275 +951,353 @@ const deletePhoto = (id) =>
                       resolve(error);
                     });
                   }
-                  const deletionResults = deletedPhotoData;
-                  deletionResults.deletedComments = deletedCommentData;
+                  const addCommentResult = addedComment
+                    ? { id: addedComment.insertId }
+                    : { id: null, affectedRows: 0 };
                   connection.release();
-                  resolve(deletionResults);
+                  resolve(addCommentResult);
                 });
               }
             );
-          }
-        );
+          });
+        });
       });
-    });
-  });
 
-/**
- * Adds favorite trail by user id and trail id. If successful, returns an object containing
- * inserted favorite's id. Otherwise, returns error message or object containing affectedRows: 0.
- */
+    /**
+     * Adds photo after photo is uploaded to storage bucket. If successful, returns an object containing
+     * inserted photo's id. Otherwise, returns error message or object containing affectedRows: 0.
+     */
+    const addPhoto = (photoObject) =>
+      new Promise((resolve, reject) => {
+        poolConnection.getConnection((error, connection) => {
+          if (error) reject(error);
 
-const addFavorite = (favoriteObject) =>
-  new Promise((resolve, reject) => {
-    poolConnection.getConnection((error, connection) => {
-      if (error) reject(error);
+          const addPhotoCommand = `
+      INSERT INTO photos (url, description, lat, lng, id_user, id_trail)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
 
-      const { id_user, id_trail } = favoriteObject;
+          connection.beginTransaction((error) => {
+            if (error) {
+              connection.rollback(() => {
+                connection.release();
+                resolve(error);
+              });
+            }
+            connection.query(addPhotoCommand,
+              [
+                photoObject.url,
+                photoObject.description,
+                photoObject.lat,
+                photoObject.lng,
+                photoObject.id_user,
+                photoObject.id_trail,
+              ],
+              (error, addedPhoto) => {
+                if (error) {
+                  connection.rollback(() => {
+                    connection.release();
+                    resolve(error);
+                  });
+                }
+                connection.commit((error) => {
+                  if (error) {
+                    connection.rollback(() => {
+                      connection.release();
+                      resolve(error);
+                    });
+                  }
+                  connection.commit((error) => {
+                    if (error) {
+                      connection.rollback(() => {
+                        connection.release();
+                        resolve(error);
+                      });
+                    }
+                    const addPhotoResult = addedPhoto
+                      ? { id: addedPhoto.insertId }
+                      : { id: null, affectedRows: 0 };
+                    connection.release();
+                    resolve(addPhotoResult);
+                  });
+                }
+                );
+              });
+          });
+        });
 
-      const addFavoriteCommand = `
+        /**
+         * Deletes comment by id.
+         */
+        const deleteComment = (id) =>
+          new Promise((resolve, reject) => {
+            poolConnection.getConnection((error, connection) => {
+              if (error) reject(error);
+
+              const deleteCommentCommand = `
+      DELETE FROM comments
+      WHERE id = ?
+    `;
+              connection.beginTransaction((error) => {
+                if (error) {
+                  connection.rollback(() => {
+                    connection.release();
+                    resolve(error);
+                  });
+                }
+                connection.query(
+                  deleteCommentCommand,
+                  [id],
+                  (error, deletedCommentData) => {
+                    if (error) {
+                      connection.rollback(() => {
+                        connection.release();
+                        resolve(error);
+                      });
+                    }
+                    connection.commit((error) => {
+                      if (error) {
+                        connection.rollback(() => {
+                          connection.release();
+                          resolve(error);
+                        });
+                      }
+                      connection.release();
+                      resolve(deletedCommentData);
+                    });
+                  }
+                );
+              });
+            });
+          });
+
+        /**
+         * Deletes photo and all associated comments by photo id.
+         */
+        const deletePhoto = (id) =>
+          new Promise((resolve, reject) => {
+            poolConnection.getConnection((error, connection) => {
+              if (error) reject(error);
+
+              const deleteCommentsCommand = `
+      DELETE FROM comments
+      where id_photo = ?
+  `;
+              const deletePhotoCommand = `
+      DELETE FROM photos
+      WHERE id = ?
+    `;
+
+              connection.beginTransaction((error) => {
+                if (error) {
+                  connection.rollback(() => {
+                    connection.release();
+                    resolve(error);
+                  });
+                }
+                connection.query(
+                  deleteCommentsCommand,
+                  [id],
+                  (error, deletedCommentData) => {
+                    if (error) {
+                      connection.rollback(() => {
+                        connection.release();
+                        resolve(error);
+                      });
+                    }
+                    connection.query(
+                      deletePhotoCommand,
+                      [id],
+                      (error, deletedPhotoData) => {
+                        if (error) {
+                          connection.rollback(() => {
+                            connection.release();
+                            resolve(error);
+                          });
+                        }
+                        connection.commit((error) => {
+                          if (error) {
+                            connection.rollback(() => {
+                              connection.release();
+                              resolve(error);
+                            });
+                          }
+                          const deletionResults = deletedPhotoData;
+                          deletionResults.deletedComments = deletedCommentData;
+                          connection.release();
+                          resolve(deletionResults);
+                        });
+                      }
+                    );
+                  }
+                );
+              });
+            });
+          });
+
+        /**
+         * Adds favorite trail by user id and trail id. If successful, returns an object containing
+         * inserted favorite's id. Otherwise, returns error message or object containing affectedRows: 0.
+         */
+
+        const addFavorite = (favoriteObject) =>
+          new Promise((resolve, reject) => {
+            poolConnection.getConnection((error, connection) => {
+              if (error) reject(error);
+
+              const { id_user, id_trail } = favoriteObject;
+
+              const addFavoriteCommand = `
       INSERT INTO favorites (id_user, id_trail)
       VALUES (?, ?)
     `;
 
-      connection.beginTransaction((error) => {
-        if (error) {
-          connection.rollback(() => {
-            connection.release();
-            resolve(error);
-          });
-        }
-        connection.query(
-          addFavoriteCommand,
-          [id_user, id_trail],
-          (error, addedFavorite) => {
-            if (error) {
-              connection.rollback(() => {
-                connection.release();
-                resolve(error);
+              connection.beginTransaction((error) => {
+                if (error) {
+                  connection.rollback(() => {
+                    connection.release();
+                    resolve(error);
+                  });
+                }
+                connection.query(
+                  addFavoriteCommand,
+                  [id_user, id_trail],
+                  (error, addedFavorite) => {
+                    if (error) {
+                      connection.rollback(() => {
+                        connection.release();
+                        resolve(error);
+                      });
+                    }
+                    connection.commit((error) => {
+                      if (error) {
+                        connection.rollback(() => {
+                          connection.release();
+                          resolve(error);
+                        });
+                      }
+                      const addFavoriteResult = addedFavorite
+                        ? { id: addedFavorite.insertId }
+                        : { id: null, affectedRows: 0 };
+                      connection.release();
+                      resolve(addFavoriteResult);
+                    });
+                  }
+                );
               });
-            }
-            connection.commit((error) => {
-              if (error) {
-                connection.rollback(() => {
-                  connection.release();
-                  resolve(error);
-                });
-              }
-              const addFavoriteResult = addedFavorite
-                ? { id: addedFavorite.insertId }
-                : { id: null, affectedRows: 0 };
-              connection.release();
-              resolve(addFavoriteResult);
             });
-          }
-        );
-      });
-    });
-  });
+          });
 
-/**
- * Deletes favorite trail by user id and trail id.
- */
-const deleteFavorite = (favoriteObject) =>
-  new Promise((resolve, reject) => {
-    poolConnection.getConnection((error, connection) => {
-      if (error) reject(error);
+        /**
+         * Deletes favorite trail by user id and trail id.
+         */
+        const deleteFavorite = (favoriteObject) =>
+          new Promise((resolve, reject) => {
+            poolConnection.getConnection((error, connection) => {
+              if (error) reject(error);
 
-      const { id_user, id_trail } = favoriteObject;
+              const { id_user, id_trail } = favoriteObject;
 
-      const deleteFavoriteCommand = `
+              const deleteFavoriteCommand = `
       DELETE FROM favorites
       WHERE id_user = ? AND id_trail = ?
     `;
-      connection.beginTransaction((error) => {
-        if (error) {
-          connection.rollback(() => {
-            connection.release();
-            resolve(error);
-          });
-        }
-        connection.query(
-          deleteFavoriteCommand,
-          [id_user, id_trail],
-          (error, deletedFavoriteData) => {
-            if (error) {
-              connection.rollback(() => {
-                connection.release();
-                resolve(error);
+              connection.beginTransaction((error) => {
+                if (error) {
+                  connection.rollback(() => {
+                    connection.release();
+                    resolve(error);
+                  });
+                }
+                connection.query(
+                  deleteFavoriteCommand,
+                  [id_user, id_trail],
+                  (error, deletedFavoriteData) => {
+                    if (error) {
+                      connection.rollback(() => {
+                        connection.release();
+                        resolve(error);
+                      });
+                    }
+                    connection.commit((error) => {
+                      if (error) {
+                        connection.rollback(() => {
+                          connection.release();
+                          resolve(error);
+                        });
+                      }
+                      connection.release();
+                      resolve(deletedFavoriteData);
+                    });
+                  }
+                );
               });
-            }
-            connection.commit((error) => {
-              if (error) {
-                connection.rollback(() => {
-                  connection.release();
-                  resolve(error);
-                });
-              }
-              connection.release();
-              resolve(deletedFavoriteData);
             });
-          }
-        );
-      });
-    });
-  });
+          });
 
-/**
- * Updates comment by id to reflect provided text.
- */
-const updateComment = (commentObject) =>
-  new Promise((resolve, reject) => {
-    poolConnection.getConnection((error, connection) => {
-      if (error) reject(error);
+        /**
+         * Updates comment by id to reflect provided text.
+         */
+        const updateComment = (commentObject) =>
+          new Promise((resolve, reject) => {
+            poolConnection.getConnection((error, connection) => {
+              if (error) reject(error);
 
-      const updateCommentCommand = `
+              const updateCommentCommand = `
       UPDATE comments
       SET text = ?
       WHERE id = ?
     `;
 
-      connection.beginTransaction((error) => {
-        if (error) {
-          connection.rollback(() => {
-            connection.release();
-            resolve(error);
-          });
-        }
-        connection.query(
-          updateCommentCommand,
-          [commentObject.text, commentObject.id],
-          (error, updatedComment) => {
-            if (error) {
-              connection.rollback(() => {
-                connection.release();
-                resolve(error);
+              connection.beginTransaction((error) => {
+                if (error) {
+                  connection.rollback(() => {
+                    connection.release();
+                    resolve(error);
+                  });
+                }
+                connection.query(
+                  updateCommentCommand,
+                  [commentObject.text, commentObject.id],
+                  (error, updatedComment) => {
+                    if (error) {
+                      connection.rollback(() => {
+                        connection.release();
+                        resolve(error);
+                      });
+                    }
+                    connection.commit((error) => {
+                      if (error) {
+                        connection.rollback(() => {
+                          connection.release();
+                          resolve(error);
+                        });
+                      }
+                      connection.release();
+                      resolve(updatedComment);
+                    });
+                  }
+                );
               });
-            }
-            connection.commit((error) => {
-              if (error) {
-                connection.rollback(() => {
-                  connection.release();
-                  resolve(error);
-                });
-              }
-              connection.release();
-              resolve(updatedComment);
             });
-          }
-        );
-      });
-    });
-  });
-
-const addEntry = (entry) =>
-  new Promise((resolve, reject) => {
-    poolConnection.getConnection((error, connection) => {
-      if (error) reject(error);
-      const { id_user, title, text } = entry;
-      const addEntryCommand = `
-      INSERT INTO entries (id_user, title, text)
-      VALUES (?, ?, ?)
-    `;
-
-      connection.beginTransaction((error) => {
-        if (error) {
-          connection.rollback(() => {
-            connection.release();
-            resolve(error);
           });
-        }
-        connection.query(
-          addEntryCommand,
-          [id_user, title, text],
-          (error, addedEntry) => {
-            if (error) {
-              connection.rollback(() => {
-                connection.release();
-                resolve(error);
-              });
-            }
-            connection.commit((error) => {
-              if (error) {
-                connection.rollback(() => {
-                  connection.release();
-                  resolve(error);
-                });
-              }
-              const addEntryResult = addedEntry
-                ? { id: addedEntry.insertId }
-                : { id: null, affectedRows: 0 };
-              connection.release();
-              resolve(addEntryResult);
-            });
-          }
-        );
-      });
-    });
-  });
 
-/**
- * Deletes entries by id.
- */
-const deleteEntry = (id) =>
-  new Promise((resolve, reject) => {
-    poolConnection.getConnection((error, connection) => {
-      if (error) reject(error);
-
-      const deleteEntryCommand = `
-      DELETE FROM entries
-      WHERE id = ?
-    `;
-      connection.beginTransaction((error) => {
-        if (error) {
-          connection.rollback(() => {
-            connection.release();
-            resolve(error);
-          });
-        }
-        connection.query(
-          deleteEntryCommand,
-          [id],
-          (error, deletedEntryData) => {
-            if (error) {
-              connection.rollback(() => {
-                connection.release();
-                resolve(error);
-              });
-            }
-            connection.commit((error) => {
-              if (error) {
-                connection.rollback(() => {
-                  connection.release();
-                  resolve(error);
-                });
-              }
-              connection.release();
-              resolve(deletedEntryData);
-            });
-          }
-        );
-      });
-    });
-  });
-
-module.exports = {
-  getUser,
-  addUser,
-  getTrail,
-  addTrail,
-  updateTrail,
-  deleteTrail,
-  updateDifficulty,
-  updateLikeability,
-  addComment,
-  addPhoto,
-  deleteComment,
-  deletePhoto,
-  addFavorite,
-  deleteFavorite,
-  updateComment,
-  addEntry,
-  deleteEntry,
-};
+        module.exports = {
+          getUser,
+          addUser,
+          getTrail,
+          addTrail,
+          updateTrail,
+          deleteTrail,
+          updateDifficulty,
+          updateLikeability,
+          addComment,
+          addPhoto,
+          deleteComment,
+          deletePhoto,
+          addFavorite,
+          deleteFavorite,
+          updateComment,
+        };
 
 // mysql -uroot < trailr.sql

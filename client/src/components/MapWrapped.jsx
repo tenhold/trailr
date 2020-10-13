@@ -134,18 +134,14 @@ const MapWithASearchBox = React.memo(({ getLocation }) => {
           coordinates.push({ lat: +currentTrail.lat, lng: +currentTrail.lon });
           return coordinates;
         }, []);
-        const markers =
-          locations &&
-          locations.map(
-            (location) =>
-              new googleRef.Marker({
-                position: location,
-                icon: transparentMarker,
-              })
-          );
-        new MarkerClusterer(map, markers, {
-          imagePath:
-            'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+        const markers = locations
+        && locations.map((location) => new googleRef.Marker({
+          position: location,
+          icon: transparentMarker,
+        }));
+        // took new keyword off maybe breaks something //
+        MarkerClusterer(map, markers, {
+          imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
           gridSize: 15,
           minimumClusterSize: 2,
         });

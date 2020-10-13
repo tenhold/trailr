@@ -87,87 +87,68 @@ const userPage = ({ user }) => {
 
   return (
     <>
-      {redirect ? <Redirect to='/404' /> : null}
-      <Container>
-        <Row>
-          <Col>
-            {' '}
-            <Travellog />
-          </Col>
-          <Col>
-            <Col xs={6}>
-              {!photoInfo.length ? null : (
-                <>
-                  <Carousel
-                    photos={photoInfo}
-                    currentPhoto={currentPhoto}
-                    changeCurrentPhoto={changeCurrentPhoto}
-                    user={user}
-                    removePhoto={removePhoto}
-                  />
-                  {user.loggedIn ? (
-                    <AddComment
-                      appendComments={appendComments}
-                      userId={user.id}
-                      photoId={photoInfo[currentPhoto].id}
-                      name={user.name}
-                    />
-                  ) : null}
-                </>
-              )}
-            </Col>
-            <Col xs={6}>
-              <center>
-                <Image thumbnail src={userInfo.url} />
-                <br></br>
-                <h3>Trail Mix</h3>
-                <iframe
-                  src={
-                    'https://open.spotify.com/embed?uri=spotify:playlist:1kGDWSxd9wsgLSrwKZnq5Z'
-                  }
-                  width='300'
-                  height='380'
-                  frameBorder='0'
-                  allowtransparency='true'
-                  allow='encrypted-media'
-                ></iframe>
-              </center>
-              <br></br>
-            </Col>
-          </Col>
-          <Col>
-            <center>
-              <h2>{userInfo.name}'s Saved Trails</h2>
-            </center>
-            {!myTrails.length
-              ? null
-              : myTrails.map((trail) => (
-                  <Accordion key={trail.id}>
-                    <Card>
-                      <Accordion.Toggle as={Card.Header} eventKey='0'>
-                        <Row>
-                          <Col xs={6}>{trail.name}</Col>
-                          <Col xs={6}>
-                            <Link to={`/trail/${trail.id}`}>See Trail</Link>
-                          </Col>
-                        </Row>
-                      </Accordion.Toggle>
-                      <Accordion.Collapse eventKey='0'>
-                        <Card.Body>
-                          <Row>
-                            <Col xs={4}>
-                              <Image thumbnail src={trail.thumbnail} />
-                            </Col>
-                            <Col xs={8}>{trail.description}</Col>
-                          </Row>
-                        </Card.Body>
-                      </Accordion.Collapse>
-                    </Card>
-                  </Accordion>
-                ))}
-          </Col>
-        </Row>
-      </Container>
+      {redirect ? <Redirect to="/404" /> : null}
+      <Col xs={6}>
+        {!photoInfo.length ? null : (
+          <>
+            <Carousel
+              photos={photoInfo}
+              currentPhoto={currentPhoto}
+              changeCurrentPhoto={changeCurrentPhoto}
+              user={user}
+              removePhoto={removePhoto}
+            />
+            {user.loggedIn ? (
+              <AddComment
+                appendComments={appendComments}
+                userId={user.id}
+                photoId={photoInfo[currentPhoto].id}
+                name={user.name}
+              />
+            ) : null}
+          </>
+        )}
+      </Col>
+      <Col xs={6}>
+        <Image thumbnail src={userInfo.url} />
+        <br></br>
+        <SpotifySearchBar />
+        {/* <iframe
+          src='https://open.spotify.com/embed?uri=spotify:album:5EpMjweRD573ASl7uNiHym'
+          width='300'
+          height='380'
+          frameborder='0'
+          allowtransparency='true'
+          allow='encrypted-media'
+        ></iframe> */}
+        <h2>{userInfo.name} Saved Trails</h2>
+        {!myTrails.length
+          ? null
+          : myTrails.map((trail) => (
+              <Accordion key={trail.id}>
+                <Card>
+                  <Accordion.Toggle as={Card.Header} eventKey='0'>
+                    <Row>
+                      <Col xs={9}>{trail.name}</Col>
+                      <Col xs={3}>
+                        <Link to={`/trail/${trail.id}`}>See Trail</Link>
+                      </Col>
+                    </Row>
+                  </Accordion.Toggle>
+                  <Accordion.Collapse eventKey='0'>
+                    <Card.Body>
+                      <Row>
+                        <Col xs={4}>
+                          <Image thumbnail src={trail.thumbnail} />
+                        </Col>
+                        <Col xs={8}>{trail.description}</Col>
+                      </Row>
+                    </Card.Body>
+                  </Accordion.Collapse>
+                </Card>
+              </Accordion>
+            ))}
+      </Col>
     </>
   );
 };
