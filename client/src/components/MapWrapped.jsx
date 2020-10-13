@@ -135,8 +135,8 @@ const MapWithASearchBox = React.memo(() => {
           position: location,
           icon: transparentMarker,
         }));
-        // eslint-disable-next-line no-new
-        new MarkerClusterer(map, markers, {
+        // took new keyword off maybe breaks something //
+        MarkerClusterer(map, markers, {
           imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
           gridSize: 15,
           minimumClusterSize: 2,
