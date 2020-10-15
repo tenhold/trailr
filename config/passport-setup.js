@@ -22,8 +22,8 @@ passport.use(
     (accessToken, refreshToken, profile, done) => {
       // passport callback function
       // console.log('passport callback fired'); // indication that function fired
-      console.log('USER PROFILE', profile); // shows returned profile information
-      console.log(process.env.GOOGLE_CLIENT_ID);
+      // console.log('USER PROFILE', profile); // shows returned profile information
+      // console.log('GOOGLE CLIENT ID: ', process.env.GOOGLE_CLIENT_ID);
       const { displayName, id, photos } = profile;
       addUser({
         google_id: id,
