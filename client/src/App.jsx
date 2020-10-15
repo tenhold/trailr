@@ -17,6 +17,7 @@ const loggedOut = { loggedIn: false };
 // The app
 const app = () => {
   const [user, setUser] = useState(loggedOut);
+  const [location, setLocation] = useState({});
   // Get's the auth state and saves it to the user object
   useEffect(() => {
     getAuth()
@@ -34,6 +35,12 @@ const app = () => {
         setUser(loggedOut);
       });
   }, []);
+  
+  const getLocation = (userLocation)  => {
+    setLocation(userLocation);
+    console.log('user location in app', location);
+  };
+
   return (
     <BrowserRouter>
       <HeaderImage />
@@ -48,7 +55,10 @@ const app = () => {
               <User user={user} />
             </Route>
             <Route path='/stargazer'>
-              <Stargazer user={user} />
+              <Stargazer 
+                user={user} 
+                location={location}
+              />
             </Route>
             <Route path='/404'>
               <NoMatchPage />
@@ -63,6 +73,7 @@ const app = () => {
                   containerElement={<div style={{ height: '800px' }} />}
                   mapElement={<div style={{ height: '100%' }} />}
                   loadingElement={<div style={{ height: '100%' }} />}
+                  getLocation={getLocation}
                 />
               </div>
             </Route>
