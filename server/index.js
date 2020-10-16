@@ -3,6 +3,13 @@ require('dotenv').config();
 
 const cors = require('cors');
 
+//////////////
+// Kris add //
+/////////////
+let request = require('request');
+
+//////////////////////////////
+
 // require passport-setup file, to enable passport middleware
 require('../config/passport-setup');
 
@@ -64,12 +71,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // utilize passport middleware initialize && session authentication functionality
-app.use(session({
-  secret: process.env.SECRET, // not sure if this is right
-  resave: false,
-  saveUninitialized: true,
-  // cookie: { secure: true }, //don't know if we need this
-}));
+app.use(
+  session({
+    secret: process.env.SECRET, // not sure if this is right
+    resave: false,
+    saveUninitialized: true,
+    // cookie: { secure: true }, //don't know if we need this
+  })
+);
 
 /**
  * utilize middleware to determine which user data should be stored in the session
@@ -126,6 +135,50 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '/../client/dist/index.html'));
 });
 
+const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
+var SPOTIFY_URI;
+
+var options = {
+  url: 'https://accounts.spotify.com/api/token',
+  headers: {
+    Authorization:
+      'Basic ' +
+      new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
+        'base64'
+      ),
+  },
+  form: {
+    grant_type: 'client_credentials',
+  },
+  json: true,
+};
+
+request.post(options, (error, res, body) => {
+  // console.log('body.....', body);
+  if (!error && res.statusCode === 200) {
+    // access token allows us to access Spotify API
+    var token = body.access_token;
+    var options = {
+      url: 'https://api.spotify.com/v1/search?q=my shot&type=track',
+      headers: {
+        Authorization: 'Bearer ' + token,
+      },
+      json: true,
+    };
+  }
+  request.get(options, (error, res, body) => {
+    body.tracks.items.forEach((song) => {
+      // console.log('song', song.artists);
+      song.artists.forEach((artist) => {
+        // console.log(artist.name);
+        SPOTIFY_URI = artist.name;
+      });
+      console.log(SPOTIFY_URI);
+    });
+  });
+});
+
+// console.log('uri????????>>>>>>>>', URI);
 // set server to listen for requests on configured report
 app.listen(process.env.PORT || PORT, () => {
   console.info(`Server Walking The Trails on http://localhost:${PORT}`);
