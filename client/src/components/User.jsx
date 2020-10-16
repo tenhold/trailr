@@ -10,6 +10,7 @@ import Image from 'react-bootstrap/Image';
 import { getUserData, getAuth } from '../helpers';
 import Carousel from './Carousel.jsx';
 import AddComment from './AddComment.jsx';
+import SpotifySearchBar from './SpotifySearchBar.jsx';
 
 /**
  * Displays the indiviual user page with their saved trails and all their photos
@@ -111,8 +112,9 @@ const userPage = ({ user }) => {
       <Col xs={6}>
         <Image thumbnail src={userInfo.url} />
         <br></br>
+        <SpotifySearchBar />
         <iframe
-          src='https://open.spotify.com/embed?uri=spotify:album:05c49JgPmL4Uz2ZeqRx5SP'
+          src='https://open.spotify.com/embed?uri=spotify:album:6akEvsycLGftJxYudPjmqK'
           width='300'
           height='380'
           frameborder='0'
