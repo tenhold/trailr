@@ -104,8 +104,8 @@ const MapWithASearchBox = React.memo(({ getLocation }) => {
       map.addListener('bounds_changed', () => {
         const currentBounds = map.getBounds();
         const currentCenter = {
-          lat: (currentBounds.Za.i + currentBounds.Za.j) / 2,
-          lng: (currentBounds.Va.i + currentBounds.Va.j) / 2,
+          lat: (currentBounds.Sa.i + currentBounds.Sa.j) / 2,
+          lng: (currentBounds.Ya.i + currentBounds.Ya.j) / 2,
         };
         const range = 1.2; // lat/lon degrees needed to change in order to search again
         const radius = 100; // search radius in miles
