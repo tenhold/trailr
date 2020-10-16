@@ -38,7 +38,7 @@ const AstroPhoto = ({ user }) => {
       <button onClick={handleUpload}>submit</button>
       <img />
     </>
-  )
+  );
   
 };
 
@@ -51,5 +51,21 @@ const AstroPhoto = ({ user }) => {
 //           checked={bg}
 //         />
 //       </Form>
+
+// <Button variant="success" onClick={toggleModal}>Add Picture</Button>
+//       <Modal show={modelShow} onHide={toggleModal} size="lg">
+//         <Modal.Header closeButton>
+//           <Modal.Title>Add New Picture</Modal.Title>
+//         </Modal.Header>
+//         <Modal.Body>
+//           <input type='file' onChange={fileSelectedHandler} />
+//           <button onClick={handleUpload}>submit</button>
+//         </Modal.Body>
+//         <Modal.Footer>
+//           <Button variant="danger" onClick={toggleModal}>Close</Button>
+//           {/* <Button variant="success" onClick={submitHandler}>Submit Images</Button> */}
+//         </Modal.Footer>
+//       </Modal> 
+
 
 export default AstroPhoto;
