@@ -18,6 +18,7 @@ const loggedOut = { loggedIn: false };
 const app = () => {
   const [user, setUser] = useState(loggedOut);
   const [location, setLocation] = useState({});
+  const [bg, setbg] = useState(true);
   // Get's the auth state and saves it to the user object
   useEffect(() => {
     getAuth()

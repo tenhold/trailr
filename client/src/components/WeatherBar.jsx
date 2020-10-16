@@ -26,7 +26,7 @@ const {lat, lng} = userLocation;
         console.log(data)
         isSwitchOn ? setView(data.daily.slice(1, 6)) : setView(data.hourly.slice(0, 7))
         setViewLoaded(true);
-      }).catch((err) => console.log('There seems to be an error', err))
+      }).catch((err) => console.error('There seems to be an error', err))
     }
   useEffect(() => {
     updateWeather()

@@ -1,15 +1,24 @@
-import React from 'react'
-import {Container} from 'react-bootstrap'
-import Header from "./header"
+import React, { useState } from 'react';
+import { Container } from 'react-bootstrap';
+import AddPicture from './AddPicture.jsx';
+import AstroPhoto from './AstroPhoto.jsx';
 
-const Stargazer = ({ location: { lat, lng } }) => {
+const Stargazer = ({ user, location: { lat, lng } }) => {
+	const [bg, setBg] = useState(true);
 	// if user reloads the page location isn't stored so set it defalut to new orleans
 	lat = lat || 30.0766974;
 	lng = lng || -89.8788793;
+
+	const handleBg = () => {
+		setBg(!bg);
+	};
+
 	return (
-		<>
+		<div style={{
+			backgroundColor: bg ? null : '#121212'
+		}}>
+			<button onClick={handleBg} />
 			<Container style={{ display: 'flex', padding: '40px' }}>
-				<h1></h1>
 				<iframe
 					width="900" 
 					height="600" 
@@ -19,7 +28,9 @@ const Stargazer = ({ location: { lat, lng } }) => {
 				>
 				</iframe>
 			</Container>
-		</>
+			{/* <AddPicture /> */}
+			<AstroPhoto user={user}  />
+		</div>
 )}
 
 
