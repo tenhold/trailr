@@ -42,6 +42,15 @@ CREATE TABLE photos (
   FOREIGN KEY (id_trail) REFERENCES trails(id)
 );
 
+Create TABLE astrophotos (
+  id int AUTO_INCREMENT,
+  url varchar(255),
+  description varchar(255),
+  created_at timestamp,
+  PRIMARY KEY (id),
+  FOREIGN KEY (id_user) REFERENCES users(id)
+);
+
 CREATE TABLE rating_difficulty (
   id int AUTO_INCREMENT,
   value int,
@@ -102,6 +111,9 @@ INSERT into photos (url, description, lat, lng, id_user, id_trail) VALUES ("http
 INSERT into photos (url, description, lat, lng, id_user, id_trail) VALUES ("https://bridgehunter.com/photos/23/82/238295-M.jpg", "Bayou Lacombe Bridge", "30.3051928", "-89.9255997", "3", "3");
 INSERT into photos (url, description, lat, lng, id_user, id_trail) VALUES ("https://3.bp.blogspot.com/_8pLXF3eWByQ/S6wROMdIofI/AAAAAAAAAlk/vXKlFvFWJ4k/s1600/LASlidell2_002TammanyTraceTrail_BayouLaCombeBridge_TraceRangers.jpg", "Lacombie Homies", "30.3052827", "-89.925844", "3", "3");
 -- INSERT into photos (url, description, latitude, longitude, id_user, id_trail) VALUES ("", "", "", "", "", "");
+
+INSERT into astrophotos (url, description, id_user) VALUES ("https://upload.wikimedia.org/wikipedia/commons/3/31/Night_Photography.jpg", "Night Trails!", "1");
+-- INSERT into astrophotos (url, description, id_user) VALUES ("", "", "")
 
 INSERT into comments (text, id_user, id_photo) VALUES ("To get to the Abita Springs Trailhead Museum", "4", "3");
 INSERT into comments (text, id_user, id_photo) VALUES ("Like a bridge over tainted water", "3", "2");
