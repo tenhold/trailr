@@ -1,77 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import { Form } from 'bootstrap';
+import React, { useState, useEffect, useReducer } from 'react';
+import { Modal, Button, Carousel } from 'react-bootstrap';
 import axios from 'axios';
-import { uploadPhoto } from '../helpers'; 
+import { ModalBody } from 'react-bootstrap';
+import ModalHeader from 'react-bootstrap/esm/ModalHeader';
+import { results } from '../data/images.json';
+
 
 
 
 const AstroPhoto = ({ user }) => {
-  const [bg, setBg] = useState(true);
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState('');
+  const [images, setImages] = useState([]);
+  const [show, setShow] = useState(false);
+  const [toggle, setToggle] = useState(true);
 
   const fileSelectedHandler = e => {
     setImage(e.target.files);
   };
 
   useEffect(() => {
-    axios.get('/api/astrophotos')
-      .then((response) => {
-        console.log(response.data)
-      });
+    
   }, []);
 
-  const handleUpload = () => {
-    uploadPhoto(image)
-      .then(data => {
-        console.log(data.data);
-        setImage(null);
-      })
-  };
-
-  const handleChange = () => {
-    setBg(!bg);
-    console.log(bg)
-  };
    
+  const getImage = () => {
+    // setShow(true);
+    // const { urls } = results[0];
+    // setImage(results[0].urls.small);
+    // setImages(results[1].urls.small);
+    // console.log(results);
+    // axios.get(`https://api.unsplash.com/photos/random?client_id=${process.env.UNSPLASH_CLIENT_ID}&query=astrophotography`)
+    axios.get(`https://api.unsplash.com/search/photos?client_id=${process.env.UNSPLASH_CLIENT_ID}&query=astrophotography`)
+      .then(res => {
+        const { results } = res.data;
+        setImages(results);
+        setToggle(false);
+        console.log(images)
+      })
+      .catch(err => console.error(err));
+  };
 
+  const newImage = () => {
+    toggle ? setImage(results[1].urls.small) : setImage(results[0].urls.small);
+    setToggle(!toggle);
+  };
 
-
+  const hide = () => setShow(false);
 
   return (
-    <>
-      <button onClick={handleChange} />
-      <input type='file' onChange={fileSelectedHandler} />
-      <button onClick={handleUpload}>submit</button>
-      <img />
-    </>
+    <div style={{padding: '40px'}}>
+      {toggle ? 
+        <Button onClick={getImage} centered={'true'} variant="dark">Get Inspired!</Button>
+        :
+  
+
+        <Carousel >
+          {images.map(({ id, alt_description, urls: { regular } }) => {
+            return (
+              <Carousel.Item key={id}>
+                <img
+                  className="d-block w-100"
+                  src={regular}
+                  alt="astro images"
+                />
+                <Carousel.Caption>
+                  <h3>{alt_description}</h3>
+                </Carousel.Caption>
+              </Carousel.Item>
+            )
+          })}
+        </Carousel>
+      }
+    </div>
   );
   
 };
 
-// <Form>
-//         <Form.Switch 
-//           onChange={handleChange}
-//           type='switch'
-//           id={console.log(Form)}
-//           label='nightmode'
-//           checked={bg}
-//         />
-//       </Form>
-
-// <Button variant="success" onClick={toggleModal}>Add Picture</Button>
-//       <Modal show={modelShow} onHide={toggleModal} size="lg">
-//         <Modal.Header closeButton>
-//           <Modal.Title>Add New Picture</Modal.Title>
-//         </Modal.Header>
-//         <Modal.Body>
-//           <input type='file' onChange={fileSelectedHandler} />
-//           <button onClick={handleUpload}>submit</button>
-//         </Modal.Body>
-//         <Modal.Footer>
-//           <Button variant="danger" onClick={toggleModal}>Close</Button>
-//           {/* <Button variant="success" onClick={submitHandler}>Submit Images</Button> */}
-//         </Modal.Footer>
-//       </Modal> 
 
 
 export default AstroPhoto;
+ 
+
+      // <Modal show={show} onHide={hide} dialogClassName="modal-90w" >
+      //     <ModalHeader>
+
+      //     </ModalHeader>
+      //     <ModalBody>
+      //       {/* <a onClick={newImage}><img src={image} width={'350px'} /></a> */}
+      //     </ModalBody>
+      // </Modal>
+
