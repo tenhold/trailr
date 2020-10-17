@@ -6,21 +6,9 @@ import ModalHeader from 'react-bootstrap/esm/ModalHeader';
 import { results } from '../data/images.json';
 
 
-
-
 const AstroPhoto = ({ user }) => {
-  const [image, setImage] = useState('');
   const [images, setImages] = useState([]);
-  const [show, setShow] = useState(false);
   const [toggle, setToggle] = useState(true);
-
-  const fileSelectedHandler = e => {
-    setImage(e.target.files);
-  };
-
-  useEffect(() => {
-    
-  }, []);
 
    
   const getImage = () => {
@@ -59,6 +47,7 @@ const AstroPhoto = ({ user }) => {
               <Carousel.Item key={id}>
                 <img
                   className="d-block w-100"
+                  style={{width: '500px', height: '400px'}}
                   src={regular}
                   alt="astro images"
                 />

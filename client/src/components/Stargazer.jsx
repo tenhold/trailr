@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import AddPicture from './AddPicture.jsx';
 import AstroPhoto from './AstroPhoto.jsx';
 
@@ -14,21 +14,47 @@ const Stargazer = ({ user, location: { lat, lng } }) => {
 	};
 
 	return (
-		<>
-			<AstroPhoto user={user}  />
-			<button onClick={handleBg} />
-			<Container style={{ display: 'flex', padding: '40px' }}>
-				<iframe
-					width="900" 
-					height="600" 
-					frameBorder="0" 
-					scrolling="yes"
-					src={`https://virtualsky.lco.global/embed/index.html?longitude=${lat}&latitude=${lng}&projection=gnomic&constellations=true&constellationlabels=true&az=73.76133336981957&live=true`}
-				>
-				</iframe>
+			<Container style={{ padding: '40px' }}>
+				<Row>
+					<Col></Col>
+					<Col md="auto"><AstroPhoto user={user}  /></Col>
+					<Col></Col>
+				</Row>
+				<Row>
+					<Col></Col>
+					<Col>
+						<iframe
+							width="900" 
+							height="600" 
+							frameBorder="0" 
+							scrolling="yes"
+							src={`https://virtualsky.lco.global/embed/index.html?longitude=${lat}&latitude=${lng}&projection=gnomic&constellations=true&constellationlabels=true&az=73.76133336981957&live=true`}
+						>
+						</iframe>
+					</Col>
+					<Col></Col>
+				</Row>
 			</Container>
-		</>
 )}
 
 
+{/* <button onClick={handleBg} /> */}
+
+{/* <Container style={{ display: 'flex', padding: '40px' }}>
+<Row>
+	<Col><AstroPhoto user={user}  /></Col>
+</Row>
+<Row>
+	<Col>
+		<iframe
+			width="900" 
+			height="600" 
+			frameBorder="0" 
+			scrolling="yes"
+			src={`https://virtualsky.lco.global/embed/index.html?longitude=${lat}&latitude=${lng}&projection=gnomic&constellations=true&constellationlabels=true&az=73.76133336981957&live=true`}
+		>
+		</iframe>
+	</Col>
+</Row>
+</Container> */}
 export default Stargazer;
