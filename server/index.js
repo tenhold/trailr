@@ -54,6 +54,48 @@ const multerMid = multer({
   },
 });
 
+// const getAuthToken = function () {
+//   let authOptions = {
+//     url: 'https://accounts.spotify.com/api/token',
+//     headers: {
+//       Authorization:
+//         'Basic ' +
+//         new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
+//           'base64'
+//         ),
+//     },
+//     form: {
+//       grant_type: 'client_credentials',
+//     },
+//     json: true,
+//   };
+
+// console.log('ACCESS TOKEN', authOptions);
+//   request.post(authOptions, (error, res, body) => {
+//     console.log('post', authOptions);
+//     if (!error && res.statusCode === 200) {
+//       // access token allows us to access Spotify API
+//       var token = body.access_token;
+//       var options = {
+//         url: 'https://api.spotify.com/v1/search?q=taylor swift&type=album',
+//         headers: {
+//           Authorization: 'Bearer ' + token,
+//         },
+//         json: true,
+//       };
+//     }
+
+//     request.get(options, (error, res, body) => {
+//       console.log('API CALL', options);
+//       body.albums.items.forEach((album) => {
+//         console.log('album', album.uri);
+//       });
+//     });
+//   });
+// };
+
+// getAuthToken();
+
 app.use(cors());
 
 // disable the name setting feature on the app settings table
@@ -138,41 +180,50 @@ app.get('*', (req, res) => {
 const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
 var SPOTIFY_URI;
 
-// let options = {
-//   url: 'https://accounts.spotify.com/api/token',
-//   headers: {
-//     Authorization:
-//       'Basic ' +
-//       new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
-//         'base64'
-//       ),
-//   },
-//   form: {
+let postQuery = 'grant_type=client_credentials ';
+
+// app.post('/v1/spotify/api/token', function (req, res) {
+//   let body = req.body;
+//   let redirect_uri = body.redirect_uri;
+//   let code = body.code;
+
+//   let data = {
 //     grant_type: 'client_credentials',
-//   },
-//   json: true,
-// };
+//     redirect_uri: redirect_uri,
+//     code: code,
+//   };
 
-// request.post(options, (error, res, body) => {
-//   console.log('post', options);
-//   if (!error && res.statusCode === 200) {
-//     // access token allows us to access Spotify API
-//     var token = body.access_token;
-//     var options = {
-//       url: 'https://api.spotify.com/v1/search?q=taylor swift&type=album',
+//   fetch('https://accounts.spotify.com/api/token', {
+//     method: 'POST',
+//     headers: {
+//       Authorization: `Basic ${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`,
+//       'Content-Type': 'application/x-www-form-urlencoded',
+//     },
+//     body: JSON.stringify(data),
+//   }).then((r) => r.json().then((data) => res.send(data)));
+// });
+// app.get('https://accounts.spotify.com/api/token', function (req, res) {
+//   console.log('connecting...');
+//   request(
+//     {
+//       url: 'https://accounts.spotify.com/api/token',
+//       method: 'POST',
 //       headers: {
-//         Authorization: 'Bearer ' + token,
+//         Authorization:
+//           'Basic ' +
+//           new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
+//             'base64'
+//           ),
+//         'Content-Type': 'application/x-www-form-urlencoded',
 //       },
-//       json: true,
-//     };
-//   }
-
-//   request.get(options, (error, res, body) => {
-//     console.log('get', options);
-//     body.albums.items.forEach((album) => {
-//       // console.log('album', album.uri);
-//     });
-//   });
+//       body: postQuery,
+//     },
+//     function (error, response, data) {
+//       //send the access token back to client
+//       console.log('heres yo data', data);
+//       res.end(data);
+//     }
+//   )
 // });
 
 // console.log('uri????????>>>>>>>>', URI);
@@ -180,3 +231,5 @@ var SPOTIFY_URI;
 app.listen(process.env.PORT || PORT, () => {
   console.info(`Server Walking The Trails on http://localhost:${PORT}`);
 });
+
+// module.exports = { getAuthToken };
