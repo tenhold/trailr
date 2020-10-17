@@ -74,6 +74,11 @@ const getUser = (id) =>
       FROM photos
       WHERE id_user = ?
     `;
+      const getAstrophotoCommand = `
+      SELECT * 
+      FROM astrophotos
+      WHERE id_user = ?
+    `;
       const getCommentsCommand = `
       SELECT users.*, comments.*
       FROM comments
@@ -179,6 +184,7 @@ const getUser = (id) =>
                     });
                   }
                 );
+                // user.astrophotos = gottenAstrophotos
               }
             );
           }

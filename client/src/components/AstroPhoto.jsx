@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form } from 'bootstrap';
 import axios from 'axios';
 import { uploadPhoto } from '../helpers'; 
@@ -7,19 +7,25 @@ import { uploadPhoto } from '../helpers';
 
 const AstroPhoto = ({ user }) => {
   const [bg, setBg] = useState(true);
-  const [image, setimage] = useState(null);
+  const [image, setImage] = useState(null);
 
   const fileSelectedHandler = e => {
-    setimage(e.target.files);
+    setImage(e.target.files);
   };
 
-  const handleUpload = () => {
+  useEffect(() => {
+    axios.get('/api/astrophotos')
+      .then((response) => {
+        console.log(response.data)
+      });
+  }, []);
 
-    // uploadPhoto(image)
-    //   .then(data => {
-    //     console.log(data.data);
-    //     setimage(null);
-    //   })
+  const handleUpload = () => {
+    uploadPhoto(image)
+      .then(data => {
+        console.log(data.data);
+        setImage(null);
+      })
   };
 
   const handleChange = () => {
