@@ -14,9 +14,7 @@ const Stargazer = ({ user, location: { lat, lng } }) => {
 	};
 
 	return (
-		<div style={{
-			backgroundColor: bg ? null : '#121212'
-		}}>
+		<>
 			<AstroPhoto user={user}  />
 			<button onClick={handleBg} />
 			<Container style={{ display: 'flex', padding: '40px' }}>
@@ -29,8 +27,7 @@ const Stargazer = ({ user, location: { lat, lng } }) => {
 				>
 				</iframe>
 			</Container>
-			{/* <AddPicture /> */}
-		</div>
+		</>
 )}
 
 
