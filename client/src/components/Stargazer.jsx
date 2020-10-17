@@ -38,23 +38,4 @@ const Stargazer = ({ user, location: { lat, lng } }) => {
 )}
 
 
-{/* <button onClick={handleBg} /> */}
-
-{/* <Container style={{ display: 'flex', padding: '40px' }}>
-<Row>
-	<Col><AstroPhoto user={user}  /></Col>
-</Row>
-<Row>
-	<Col>
-		<iframe
-			width="900" 
-			height="600" 
-			frameBorder="0" 
-			scrolling="yes"
-			src={`https://virtualsky.lco.global/embed/index.html?longitude=${lat}&latitude=${lng}&projection=gnomic&constellations=true&constellationlabels=true&az=73.76133336981957&live=true`}
-		>
-		</iframe>
-	</Col>
-</Row>
-</Container> */}
 export default Stargazer;
