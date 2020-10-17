@@ -41,7 +41,7 @@ const AstroPhoto = ({ user }) => {
         <Button onClick={getImage} centered={'true'} variant="dark">Get Inspired!</Button>
         :
         <>
-          <Button onClick={() => setToggle(true)} variant="dark">Back</Button>
+          <Button onClick={() => setToggle(true)} bg="light" variant="dark">Back</Button>
           <Carousel >
             {images.map(({ id, alt_description, urls: { regular } }) => (
               <Carousel.Item key={id}>
@@ -64,17 +64,4 @@ const AstroPhoto = ({ user }) => {
   
 };
 
-
-
 export default AstroPhoto;
- 
-
-      // <Modal show={show} onHide={hide} dialogClassName="modal-90w" >
-      //     <ModalHeader>
-
-      //     </ModalHeader>
-      //     <ModalBody>
-      //       {/* <a onClick={newImage}><img src={image} width={'350px'} /></a> */}
-      //     </ModalBody>
-      // </Modal>
-
