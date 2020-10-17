@@ -114,7 +114,7 @@ const userPage = ({ user }) => {
         <br></br>
         <SpotifySearchBar />
         <iframe
-          src='https://open.spotify.com/embed?uri=spotify:album:6akEvsycLGftJxYudPjmqK'
+          src='https://open.spotify.com/embed?uri=spotify:album:5EpMjweRD573ASl7uNiHym'
           width='300'
           height='380'
           frameborder='0'

@@ -3,6 +3,7 @@ import { InputGroup, FormControl, Form } from 'react-bootstrap';
 import { Button } from 'react-bootstrap/Button';
 import axios from 'axios';
 const request = require('request');
+require('dotenv').config();
 
 const SpotifySearchBar = () => {
   const [selectedAlbum, setSelectedAlbum] = useState(null);
@@ -10,18 +11,20 @@ const SpotifySearchBar = () => {
   const [searchInput, setSearchInput] = useState('');
 
   const handleSearchInput = (input) => (e) => {
-    setSearchInput({ [input]: event.target.value });
-    // console.log('searched for...', searchInput);
-    console.log(event.target.value);
+    console.log(e.target.value);
+    setSearchInput(e.target.value);
+    console.log('searched for...', searchInput);
   };
+
+  let SPOTIFY_URI;
+  const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
 
   const handleAlbumSearch = (e) => {
     e.preventDefault();
     console.log('clicked!');
     console.log('searched for', searchInput);
 
-    const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
-    var options = {
+    let options = {
       url: 'https://accounts.spotify.com/api/token',
       headers: {
         Authorization:
@@ -35,22 +38,41 @@ const SpotifySearchBar = () => {
       },
       json: true,
     };
+    console.log(options);
+    // axios
+    //   .post(options.url, options)
+    //   .then(({ data }) => {
+    //     console.log(data);
+    //     console.log('flag');
+    //     axios.get(options, (error, res, body) => {
+    //       console.log(body);
+    //       body.albums.items.forEach((album) => {
+    //         console.log('album', album.uri);
+    //       });
+    //     });
+    //   })
+    //   .catch((err) => {
+    //     console.log('error with axios in SSB');
+    //   });
 
-    request.post(options, function (error, res, body) {
+    axios.post('https://accounts.spotify.com/api/token', (error, res, body) => {
+      console.log('body.....', body);
       if (!error && res.statusCode === 200) {
         // access token allows us to access Spotify API
-        console.log(req.body);
         var token = body.access_token;
         var options = {
-          url:
-            'https://api.spotify.com/v1/search/?q=house of seven swords&type=track',
+          url: `https://api.spotify.com/v1/search?q=taylor swift&type=album`,
           headers: {
             Authorization: 'Bearer ' + token,
           },
           json: true,
         };
-        request.get(options, function (error, res, body) {
+
+        axios.get(options, (error, res, body) => {
           console.log(body);
+          body.albums.items.forEach((album) => {
+            console.log('album', album.uri);
+          });
         });
       }
     });
@@ -67,12 +89,14 @@ const SpotifySearchBar = () => {
         type='text'
         placeholder='Search'
         aria-label='Search'
-        onChange={handleSearchInput(searchInput)}
+        onChange={handleSearchInput()}
       />
       <button
         class='btn btn-elegant btn-rounded btn-sm my-0'
         type='submit'
-        onClick={handleAlbumSearch}
+        onClick={(e) => {
+          handleAlbumSearch(e);
+        }}
       >
         Search
       </button>

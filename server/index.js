@@ -87,7 +87,7 @@ app.use(
  */
 passport.serializeUser((user, done) => {
   // eslint-disable-next-line no-console
-  console.info('serilize', user);
+  // console.info('serilize', user);
   done(null, { id: user.id, name: user.name });
 });
 
@@ -138,45 +138,42 @@ app.get('*', (req, res) => {
 const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
 var SPOTIFY_URI;
 
-var options = {
-  url: 'https://accounts.spotify.com/api/token',
-  headers: {
-    Authorization:
-      'Basic ' +
-      new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
-        'base64'
-      ),
-  },
-  form: {
-    grant_type: 'client_credentials',
-  },
-  json: true,
-};
+// let options = {
+//   url: 'https://accounts.spotify.com/api/token',
+//   headers: {
+//     Authorization:
+//       'Basic ' +
+//       new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
+//         'base64'
+//       ),
+//   },
+//   form: {
+//     grant_type: 'client_credentials',
+//   },
+//   json: true,
+// };
 
-request.post(options, (error, res, body) => {
-  // console.log('body.....', body);
-  if (!error && res.statusCode === 200) {
-    // access token allows us to access Spotify API
-    var token = body.access_token;
-    var options = {
-      url: 'https://api.spotify.com/v1/search?q=my shot&type=track',
-      headers: {
-        Authorization: 'Bearer ' + token,
-      },
-      json: true,
-    };
-  }
-  request.get(options, (error, res, body) => {
-    body.tracks.items.forEach((song) => {
-      // console.log('song', song.artists);
-      song.artists.forEach((artist) => {
-        // console.log(artist.name);
-        SPOTIFY_URI = artist.name;
-      });
-      console.log(SPOTIFY_URI);
-    });
-  });
-});
+// request.post(options, (error, res, body) => {
+//   console.log('post', options);
+//   if (!error && res.statusCode === 200) {
+//     // access token allows us to access Spotify API
+//     var token = body.access_token;
+//     var options = {
+//       url: 'https://api.spotify.com/v1/search?q=taylor swift&type=album',
+//       headers: {
+//         Authorization: 'Bearer ' + token,
+//       },
+//       json: true,
+//     };
+//   }
+
+//   request.get(options, (error, res, body) => {
+//     console.log('get', options);
+//     body.albums.items.forEach((album) => {
+//       // console.log('album', album.uri);
+//     });
+//   });
+// });
 
 // console.log('uri????????>>>>>>>>', URI);
 // set server to listen for requests on configured report
