@@ -3,6 +3,13 @@ require('dotenv').config();
 
 const cors = require('cors');
 
+//////////////
+// Kris add //
+/////////////
+let request = require('request');
+
+//////////////////////////////
+
 // require passport-setup file, to enable passport middleware
 require('../config/passport-setup');
 
@@ -64,12 +71,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // utilize passport middleware initialize && session authentication functionality
-app.use(session({
-  secret: process.env.SECRET, // not sure if this is right
-  resave: false,
-  saveUninitialized: true,
-  // cookie: { secure: true }, //don't know if we need this
-}));
+app.use(
+  session({
+    secret: process.env.SECRET, // not sure if this is right
+    resave: false,
+    saveUninitialized: true,
+    // cookie: { secure: true }, //don't know if we need this
+  })
+);
 
 /**
  * utilize middleware to determine which user data should be stored in the session
@@ -78,7 +87,7 @@ app.use(session({
  */
 passport.serializeUser((user, done) => {
   // eslint-disable-next-line no-console
-  console.info('serilize', user);
+  // console.info('serilize', user);
   done(null, { id: user.id, name: user.name });
 });
 
@@ -126,6 +135,47 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '/../client/dist/index.html'));
 });
 
+const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
+var SPOTIFY_URI;
+
+// let options = {
+//   url: 'https://accounts.spotify.com/api/token',
+//   headers: {
+//     Authorization:
+//       'Basic ' +
+//       new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
+//         'base64'
+//       ),
+//   },
+//   form: {
+//     grant_type: 'client_credentials',
+//   },
+//   json: true,
+// };
+
+// request.post(options, (error, res, body) => {
+//   console.log('post', options);
+//   if (!error && res.statusCode === 200) {
+//     // access token allows us to access Spotify API
+//     var token = body.access_token;
+//     var options = {
+//       url: 'https://api.spotify.com/v1/search?q=taylor swift&type=album',
+//       headers: {
+//         Authorization: 'Bearer ' + token,
+//       },
+//       json: true,
+//     };
+//   }
+
+//   request.get(options, (error, res, body) => {
+//     console.log('get', options);
+//     body.albums.items.forEach((album) => {
+//       // console.log('album', album.uri);
+//     });
+//   });
+// });
+
+// console.log('uri????????>>>>>>>>', URI);
 // set server to listen for requests on configured report
 app.listen(process.env.PORT || PORT, () => {
   console.info(`Server Walking The Trails on http://localhost:${PORT}`);

@@ -59,7 +59,7 @@ if (!process.env.NODE_ENV) {
 const getUser = (id) =>
   new Promise((resolve, reject) => {
     poolConnection.getConnection((error, connection) => {
-      console.log('connection', connection);
+      // console.log('connection', connection);
       if (error) {
         console.log('error in getUser', error);
         // reject(error);
@@ -194,7 +194,7 @@ const getUser = (id) =>
 const addUser = (userObject) =>
   new Promise((resolve, reject) => {
     poolConnection.getConnection((error, connection) => {
-      console.log('line 200', connection);
+      // console.log('line 200', connection);
       if (error) reject(error);
 
       const checkUserCommand = `
