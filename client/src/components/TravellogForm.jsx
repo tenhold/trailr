@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Button, FormGroup, Input, Label } from 'reactstrap';
 
 class TravellogForm extends Component {
   constructor(props) {
@@ -31,28 +32,33 @@ class TravellogForm extends Component {
     const { title, body } = this.state;
     return (
       <div className='entry-form'>
-        <form>
-          <label>Title</label>
-          <input
+        {/* <form> */}
+        <FormGroup>
+          <Label>Title</Label>
+          <Input
             type='text'
             name='title'
             id='title'
             placeholder='Enter title here'
             value={title}
             onChange={this.handleChange}
-          ></input>
-          <br></br>
-          <label>Entry</label>
-          <input
+          ></Input>
+        </FormGroup>
+        <FormGroup>
+          <Label>Entry</Label>
+          <Input
             type='text'
             name='body'
             id='body'
             placeholder='Enter text here'
             value={body}
             onChange={this.handleChange}
-          ></input>
-          <button onClick={this.submitEntry}>Submit</button>
-        </form>
+          ></Input>
+          <Button color='success' onClick={this.submitEntry} size='lg' block>
+            Submit
+          </Button>
+        </FormGroup>
+        {/* </form> */}
       </div>
     );
   }

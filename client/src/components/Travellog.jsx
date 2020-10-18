@@ -1,5 +1,7 @@
 import React, { useState, Component } from 'react';
 import TravellogForm from './TravellogForm.jsx';
+import { Button, Col, Row, Container } from 'reactstrap';
+import moment from 'moment';
 
 class Travellog extends Component {
   constructor(props) {
@@ -29,11 +31,12 @@ class Travellog extends Component {
     return (
       <div className='entries'>
         <LogHeader />
+        <TravellogForm handleSubmit={this.handleSubmit} />
+        <h2 style={{ paddingTop: '20px', paddingBotton: '20px' }}></h2>
         <LogBody
           entryData={this.state.entries}
           removeEntry={this.removeEntry}
         />
-        <TravellogForm handleSubmit={this.handleSubmit} />
       </div>
     );
   }
@@ -41,23 +44,34 @@ class Travellog extends Component {
 
 //////////////////////////////////////////////////////////////
 const LogHeader = () => {
-  return <h1>Travellog</h1>;
+  return (
+    <div className='title-container'>
+      <h2 style={{ paddingBottom: '30px', paddingTop: '10px' }}>Travellog</h2>
+    </div>
+  );
 };
 //////////////////////////////////////////////////////////////
 const LogBody = (props) => {
+  const m = moment();
+  const date = m.format('dddd, MMMM Do YYYY');
   const lines = props.entryData.map((line, index) => {
     return (
-      <div key={index}>
-        <h2>{line.title}</h2>
-        <p>{line.body}</p>
-        <button
-          onClick={() => {
-            props.removeEntry(index);
-          }}
-        >
-          Delete
-        </button>
-      </div>
+      <Container key={index} className='shadow p-3 mb-5 bg-white rounded'>
+        <Row>
+          <Col>
+            <h2>{line.title}</h2>
+            <small>{date}</small>
+            <p>{line.body}</p>
+            <Button
+              onClick={() => {
+                props.removeEntry(index);
+              }}
+            >
+              Delete
+            </Button>
+          </Col>
+        </Row>
+      </Container>
     );
   });
   return <div>{lines}</div>;
