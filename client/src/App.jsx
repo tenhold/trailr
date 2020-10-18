@@ -39,7 +39,6 @@ const app = () => {
   
   const getLocation = (userLocation)  => {
     setLocation(userLocation);
-    console.log('user location in app', location);
   };
 
   return (

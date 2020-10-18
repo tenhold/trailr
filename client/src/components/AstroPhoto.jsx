@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Carousel } from 'react-bootstrap';
+import {Button, Carousel, Container, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
-import { ModalBody } from 'react-bootstrap';
-import ModalHeader from 'react-bootstrap/esm/ModalHeader';
 import { results } from '../data/images.json';
 
 
@@ -10,56 +8,47 @@ const AstroPhoto = ({ user }) => {
   const [images, setImages] = useState([]);
   const [toggle, setToggle] = useState(true);
 
-   
-  const getImage = () => {
-    // setShow(true);
-    // const { urls } = results[0];
-    // setImage(results[0].urls.small);
-    // setImages(results[1].urls.small);
-    // console.log(results);
+  useEffect(() => {
     // axios.get(`https://api.unsplash.com/photos/random?client_id=${process.env.UNSPLASH_CLIENT_ID}&query=astrophotography`)
     axios.get(`https://api.unsplash.com/search/photos?client_id=${process.env.UNSPLASH_CLIENT_ID}&query=astrophotography`)
       .then(res => {
         const { results } = res.data;
         setImages(results);
-        setToggle(false);
-        console.log(images)
       })
       .catch(err => console.error(err));
-  };
-
-  const newImage = () => {
-    toggle ? setImage(results[1].urls.small) : setImage(results[0].urls.small);
-    // setToggle(!toggle);
-  };
-
-  const hide = () => setShow(false);
+  }, []);
+   
+  const toggleImages = () => setToggle(!toggle);
 
   return (
-    <div style={{padding: '40px'}}>
-      {toggle ? 
-        <Button onClick={getImage} centered={'true'} variant="dark">Get Inspired!</Button>
+    <Container fluid>
+      <Row style={{paddingBottom: '40px'}}>
+        <Button onClick={toggleImages} variant="dark">
+          {toggle ? 'Get Inspired!' : 'Go Back'}</Button>
+      </Row>
+      {toggle ? null
         :
-        <>
-          <Button onClick={() => setToggle(true)} bg="light" variant="dark">Back</Button>
-          <Carousel >
-            {images.map(({ id, alt_description, urls: { regular } }) => (
-              <Carousel.Item key={id}>
-                <img
-                  className="d-block w-100"
-                  style={{width: '500px', height: '400px'}}
-                  src={regular}
-                  alt="astro images"
-                />
-                <Carousel.Caption>
-                  <h3>{alt_description}</h3>
-                </Carousel.Caption>
-              </Carousel.Item>
-            ))}
-          </Carousel>
-        </>
+        <Row>
+          <Col md={{ offset: 3 }}>
+            <Carousel style={{paddingBottom: '20px', width: '700px'}} >
+              {images.map(({ id, alt_description, urls: { regular } }) => (
+                <Carousel.Item key={id}>
+                  <img
+                    className="d-block w-100"
+                    style={{width: '500px', height: '400px'}}
+                    src={regular}
+                    alt="astro images"
+                  />
+                  <Carousel.Caption>
+                    <h3>{alt_description}</h3>
+                  </Carousel.Caption>
+                </Carousel.Item>
+              ))}
+            </Carousel>
+          </Col>
+        </Row>
       }
-    </div>
+    </Container>
   );
   
 };

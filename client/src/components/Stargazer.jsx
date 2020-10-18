@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import AddPicture from './AddPicture.jsx';
 import AstroPhoto from './AstroPhoto.jsx';
 
 const Stargazer = ({ user, location: { lat, lng } }) => {
@@ -9,16 +8,10 @@ const Stargazer = ({ user, location: { lat, lng } }) => {
 	lat = lat || 30.0766974;
 	lng = lng || -89.8788793;
 
-	const handleBg = () => {
-		setBg(!bg);
-	};
-
 	return (
 			<Container style={{ padding: '40px' }}>
 				<Row>
-					<Col></Col>
 					<Col md="auto"><AstroPhoto user={user}  /></Col>
-					<Col></Col>
 				</Row>
 				<Row>
 					<Col></Col>
