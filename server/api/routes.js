@@ -1,6 +1,8 @@
 // import axios framework for http requests
 const axios = require('axios');
 
+const request = require('request');
+
 // import & destructor Router method from express framework
 const { Router } = require('express');
 
@@ -32,13 +34,13 @@ const router = Router();
 /*  Get Request Handlers */
 
 /*
-* route - returns requested trail information when given id number
-* use - uses "getTrail" function to retrieve specific trail from DB
-* inputs - "getTrail" receives an object with id_trail & id_user
-* {Param} - id_trail - deconstructed from req.params
-* {Param} - id_user - deconstructed from req.body
-* returns - object containing all trail information in DB
-*/
+ * route - returns requested trail information when given id number
+ * use - uses "getTrail" function to retrieve specific trail from DB
+ * inputs - "getTrail" receives an object with id_trail & id_user
+ * {Param} - id_trail - deconstructed from req.params
+ * {Param} - id_user - deconstructed from req.body
+ * returns - object containing all trail information in DB
+ */
 router.get('/trails/:id', (req, res) => {
   let { id } = req.query;
   if (!id && req.user) {
@@ -60,15 +62,15 @@ router.get('/trails/:id', (req, res) => {
 });
 
 /*
-* route - makes GET request to trail API for trails in user area when App is rendered
-* use - uses axios function to retrieve information on trails in users area from api
-* inputs - axios function requires proper headers & params
-* {Param} - x-rapidapi-key - private key saved in .env file, found on API website
-* {Param} - radius - deconstructed from req.query
-* {Param} - lat - deconstructed from req.query
-* {Param} - lon - deconstructed from req.query
-* returns - an array of objects each containing trail information from API
-*/
+ * route - makes GET request to trail API for trails in user area when App is rendered
+ * use - uses axios function to retrieve information on trails in users area from api
+ * inputs - axios function requires proper headers & params
+ * {Param} - x-rapidapi-key - private key saved in .env file, found on API website
+ * {Param} - radius - deconstructed from req.query
+ * {Param} - lat - deconstructed from req.query
+ * {Param} - lon - deconstructed from req.query
+ * returns - an array of objects each containing trail information from API
+ */
 router.get('/trails', (req, res) => {
   const { radius, lat, lon } = req.query;
   axios({
@@ -96,17 +98,17 @@ router.get('/trails', (req, res) => {
 });
 
 /*
-* route - retrieves specific user information when given a user id number
-* use - uses "getUser" function to retrieve user information from DB
-* inputs - "getUser" receives as user id number
-* {Param} - id - deconstructed from req.params
-* returns - an object of user information from DB containing user info, photos, and photo comments
-*/
+ * route - retrieves specific user information when given a user id number
+ * use - uses "getUser" function to retrieve user information from DB
+ * inputs - "getUser" receives as user id number
+ * {Param} - id - deconstructed from req.params
+ * returns - an object of user information from DB containing user info, photos, and photo comments
+ */
 router.get('/users/:id', (req, res) => {
   const { id } = req.params;
   getUser(id)
     .then((success) => {
-      console.log('SUCESSS GETING USER', success)
+      // console.log('SUCESSS GETING USER', success)
       res.send(success);
     })
     .catch((error) => {
@@ -118,13 +120,13 @@ router.get('/users/:id', (req, res) => {
 /* POST Request Handlers */
 
 /*
-* route - adds new user information to the db
-* use - uses "addUser" function to add new user information to DB
-* inputs - "addUser" receives an object of user information:
-*        -- {"google_id", "name", "profile_photo_url"}
-* {Param} - body - deconstructed from the req object, "body" is an object
-* returns - an object with newly added user id
-*/
+ * route - adds new user information to the db
+ * use - uses "addUser" function to add new user information to DB
+ * inputs - "addUser" receives an object of user information:
+ *        -- {"google_id", "name", "profile_photo_url"}
+ * {Param} - body - deconstructed from the req object, "body" is an object
+ * returns - an object with newly added user id
+ */
 router.post('/users', (req, res) => {
   const { body } = req;
   addUser(body)
@@ -138,13 +140,13 @@ router.post('/users', (req, res) => {
 });
 
 /*
-* route - adds new trail information to the db
-* use - uses "addTrail" function to add new trail and information to DB
-* inputs - "addTrail" receives an object of information:
-*        -- {api_id, name, city, region, country, latitude, longitude, url, thumbnail, description}
-* {Param} - body - deconstructed from the req object, "body" is an object
-* returns - an object with newly added trail id
-*/
+ * route - adds new trail information to the db
+ * use - uses "addTrail" function to add new trail and information to DB
+ * inputs - "addTrail" receives an object of information:
+ *        -- {api_id, name, city, region, country, latitude, longitude, url, thumbnail, description}
+ * {Param} - body - deconstructed from the req object, "body" is an object
+ * returns - an object with newly added trail id
+ */
 router.post('/trails', (req, res) => {
   const { body } = req;
   addTrail(body)
@@ -158,13 +160,13 @@ router.post('/trails', (req, res) => {
 });
 
 /*
-* route - adds new trail information to the db
-* use - uses "addComment" function to add new user comment about a trail to DB
-* inputs - "addComment" receives an object of information:
-*        -- { text, id_user, id_photo }
-* {Param} - body - deconstructed from the req object, "body" is an object
-* returns - an object with newly added comment id
-*/
+ * route - adds new trail information to the db
+ * use - uses "addComment" function to add new user comment about a trail to DB
+ * inputs - "addComment" receives an object of information:
+ *        -- { text, id_user, id_photo }
+ * {Param} - body - deconstructed from the req object, "body" is an object
+ * returns - an object with newly added comment id
+ */
 router.post('/comments', (req, res) => {
   const { body } = req;
   if (authChecker(req.user)) {
@@ -183,13 +185,13 @@ router.post('/comments', (req, res) => {
 });
 
 /*
-* route - adds new trail information to the db
-* use - uses "addPhoto" function to add user photo of a trail to DB
-* inputs - "addPhoto" receives an object of information:
-*        -- {url, description, lat, lng, id_user, id_trail}
-* {Param} - body - deconstructed from the req object, "body" is an object
-* returns - an object with newly added photo id
-*/
+ * route - adds new trail information to the db
+ * use - uses "addPhoto" function to add user photo of a trail to DB
+ * inputs - "addPhoto" receives an object of information:
+ *        -- {url, description, lat, lng, id_user, id_trail}
+ * {Param} - body - deconstructed from the req object, "body" is an object
+ * returns - an object with newly added photo id
+ */
 router.post('/photos', (req, res) => {
   const { body } = req;
   if (authChecker(req.user)) {
@@ -208,24 +210,22 @@ router.post('/photos', (req, res) => {
 });
 
 /*
-* route - adds new trail information to the db
-* use1 - uses "uploadImage" function to add an image file to google cloud storage bucket
-* inputs - "uploadImage" receives an object of information:
-*        -- { originalname, buffer }
-* {Param} - myFile - variable set to equal req.file from req object, "myFile" is an object
-* returns - an object with newly added photo id
-* use2 - uses "addPhoto" function to add photo to DB
-* inputs - "addPhoto" receives an object of information:
-*        -- {url: photoUrl} - photoUrl returned from "uploadImage"
-* {Param} - photoUrl - photoUrl returned from "uploadImage", created local object with "url" key
-* returns - an object with newly added photo id
-*/
+ * route - adds new trail information to the db
+ * use1 - uses "uploadImage" function to add an image file to google cloud storage bucket
+ * inputs - "uploadImage" receives an object of information:
+ *        -- { originalname, buffer }
+ * {Param} - myFile - variable set to equal req.file from req object, "myFile" is an object
+ * returns - an object with newly added photo id
+ * use2 - uses "addPhoto" function to add photo to DB
+ * inputs - "addPhoto" receives an object of information:
+ *        -- {url: photoUrl} - photoUrl returned from "uploadImage"
+ * {Param} - photoUrl - photoUrl returned from "uploadImage", created local object with "url" key
+ * returns - an object with newly added photo id
+ */
 router.post('/uploads', (req, res) => {
   if (authChecker(req.user)) {
     const myFile = req.file;
-    const {
-      latitude, longitude, userId, trailId,
-    } = req.body;
+    const { latitude, longitude, userId, trailId } = req.body;
     uploadImage(myFile)
       .then((photoUrl) => {
         addPhoto({
@@ -264,13 +264,13 @@ router.post('/uploads', (req, res) => {
 });
 
 /*
-* route - allows user to add specific trail information to the db
-* use - uses "addFavorite" function to add a trail to favorites table in db
-* inputs - "addFavorite" receives an object of information:
-*        -- { id_user, id_trail }
-* {Param} - body - deconstructed from the req object, "body" is an object
-* returns - returns an object with id of newly added favorite trail
-*/
+ * route - allows user to add specific trail information to the db
+ * use - uses "addFavorite" function to add a trail to favorites table in db
+ * inputs - "addFavorite" receives an object of information:
+ *        -- { id_user, id_trail }
+ * {Param} - body - deconstructed from the req object, "body" is an object
+ * returns - returns an object with id of newly added favorite trail
+ */
 router.post('/favorites', (req, res) => {
   if (authChecker(req.user)) {
     const { body } = req;
@@ -291,13 +291,13 @@ router.post('/favorites', (req, res) => {
 /* PUT Requests Handlers */
 
 /*
-* route - allows user to update trail information saved in the db
-* use - uses "updateTrail" function to change trail information in db
-* inputs - "updateTrail" receives an object of information:
-* --{ api_id, name, city, region, country, latitude, longitude, url, thumbnail, description, status}
-* {Param} - body - deconstructed from the req object, "body" is an object
-* returns - ??????????????
-*/
+ * route - allows user to update trail information saved in the db
+ * use - uses "updateTrail" function to change trail information in db
+ * inputs - "updateTrail" receives an object of information:
+ * --{ api_id, name, city, region, country, latitude, longitude, url, thumbnail, description, status}
+ * {Param} - body - deconstructed from the req object, "body" is an object
+ * returns - ??????????????
+ */
 router.put('/trails', (req, res) => {
   if (authChecker(req.user)) {
     const { body } = req;
@@ -316,13 +316,13 @@ router.put('/trails', (req, res) => {
 });
 
 /*
-* route - allows user to update trail difficulty rating saved in db
-* use - uses "updateDifficulty" function to add a trail to favorites table in db
-* inputs - "updateDifficulty" receives an object of information:
-*        -- { id_user, id_trail, value }
-* {Param} - body - deconstructed from the req object, "body" is an object
-* returns - returns an object with new average of difficulty ratings for trail
-*/
+ * route - allows user to update trail difficulty rating saved in db
+ * use - uses "updateDifficulty" function to add a trail to favorites table in db
+ * inputs - "updateDifficulty" receives an object of information:
+ *        -- { id_user, id_trail, value }
+ * {Param} - body - deconstructed from the req object, "body" is an object
+ * returns - returns an object with new average of difficulty ratings for trail
+ */
 router.put('/difficulty', (req, res) => {
   if (authChecker(req.user)) {
     const { body } = req;
@@ -341,13 +341,13 @@ router.put('/difficulty', (req, res) => {
 });
 
 /*
-* route - allows user to update trail difficulty rating saved in db
-* use - uses "updateLikeability" function to add a trail to favorites table in db
-* inputs - "updateLikeability" receives an object of information:
-*        -- { id_user, id_trail, value }
-* {Param} - body - deconstructed from the req object, "body" is an object
-* returns - returns an object with new average of likes for trail, "newAvgLike"
-*/
+ * route - allows user to update trail difficulty rating saved in db
+ * use - uses "updateLikeability" function to add a trail to favorites table in db
+ * inputs - "updateLikeability" receives an object of information:
+ *        -- { id_user, id_trail, value }
+ * {Param} - body - deconstructed from the req object, "body" is an object
+ * returns - returns an object with new average of likes for trail, "newAvgLike"
+ */
 router.put('/likeability', (req, res) => {
   const { body } = req;
   if (authChecker(req.user)) {
@@ -366,13 +366,13 @@ router.put('/likeability', (req, res) => {
 });
 
 /*
-* route - allows user to update user comments about a trail saved in db
-* use - uses "updateComment" function to update trail comments from users
-* inputs - "updateComment" receives an object of information:
-*        -- { text, id }
-* {Param} - body - deconstructed from the req object, "body" is an object
-* returns - returns an object with new user comments for trail, "updatedComment"
-*/
+ * route - allows user to update user comments about a trail saved in db
+ * use - uses "updateComment" function to update trail comments from users
+ * inputs - "updateComment" receives an object of information:
+ *        -- { text, id }
+ * {Param} - body - deconstructed from the req object, "body" is an object
+ * returns - returns an object with new user comments for trail, "updatedComment"
+ */
 router.put('/comments', (req, res) => {
   if (authChecker(req.user)) {
     const { body } = req;
@@ -393,12 +393,12 @@ router.put('/comments', (req, res) => {
 /*  DELETE Requests Handlers */
 
 /*
-* route - allows user to delete a trail from db
-* use - uses "deleteTrail" function to remove selected trail information from db
-* inputs - "deleteTrail" receives an id number :
-* {Param} - id - deconstructed from the req object out of the params key value object
-* returns - sends back table information for affected rows, "deletedTrailData"
-*/
+ * route - allows user to delete a trail from db
+ * use - uses "deleteTrail" function to remove selected trail information from db
+ * inputs - "deleteTrail" receives an id number :
+ * {Param} - id - deconstructed from the req object out of the params key value object
+ * returns - sends back table information for affected rows, "deletedTrailData"
+ */
 router.delete('/trails/:id', (req, res) => {
   if (authChecker(req.user)) {
     const { id } = req.params;
@@ -417,12 +417,12 @@ router.delete('/trails/:id', (req, res) => {
 });
 
 /*
-* route - allows user to delete a photo from db
-* use - uses "deletePhoto" function to remove selected user added trail photos from db
-* inputs - "deletePhoto" receives an id number :
-* {Param} - id - deconstructed from the req object out of the params key value object
-* returns - sends back table information for affected rows, "deletionResults"
-*/
+ * route - allows user to delete a photo from db
+ * use - uses "deletePhoto" function to remove selected user added trail photos from db
+ * inputs - "deletePhoto" receives an id number :
+ * {Param} - id - deconstructed from the req object out of the params key value object
+ * returns - sends back table information for affected rows, "deletionResults"
+ */
 router.delete('/photos/:id', (req, res) => {
   if (authChecker(req.user)) {
     const { id } = req.params;
@@ -441,12 +441,12 @@ router.delete('/photos/:id', (req, res) => {
 });
 
 /*
-* route - allows user to delete a comment from db
-* use - uses "deleteComment" function to remove selected user added trail comments from db
-* inputs - "deleteComment" receives an id number :
-* {Param} - id - deconstructed from the req object out of the params key value object
-* returns - sends back table information for affected rows, "deletedCommentData"
-*/
+ * route - allows user to delete a comment from db
+ * use - uses "deleteComment" function to remove selected user added trail comments from db
+ * inputs - "deleteComment" receives an id number :
+ * {Param} - id - deconstructed from the req object out of the params key value object
+ * returns - sends back table information for affected rows, "deletedCommentData"
+ */
 router.delete('/comments/:id', (req, res) => {
   if (authChecker(req.user)) {
     const { id } = req.params;
@@ -465,13 +465,13 @@ router.delete('/comments/:id', (req, res) => {
 });
 
 /*
-* route - allows user to delete a favorite trail form the db
-* use - uses "deleteFavorite" function to remove user selected favorite trail from db
-* inputs - "deleteFavorite" receives an object of information:
-*        -- { id_user, id_trail }
-* {Param} - body - deconstructed from the req object, "body" is an object
-* returns - sends back table information for affected rows, "deletedFavoriteData"
-*/
+ * route - allows user to delete a favorite trail form the db
+ * use - uses "deleteFavorite" function to remove user selected favorite trail from db
+ * inputs - "deleteFavorite" receives an object of information:
+ *        -- { id_user, id_trail }
+ * {Param} - body - deconstructed from the req object, "body" is an object
+ * returns - sends back table information for affected rows, "deletedFavoriteData"
+ */
 router.delete('/favorites', (req, res) => {
   if (authChecker(req.user)) {
     const { body } = req;
@@ -488,6 +488,64 @@ router.delete('/favorites', (req, res) => {
     res.sendStatus(401);
   }
 });
+
+const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
+
+// let authOptions = {
+//   url: 'https://accounts.spotify.com/api/token',
+//   headers: {
+//     Authorization:
+//       'Basic ' +
+//       new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
+//         'base64'
+//       ),
+//   },
+//   form: {
+//     grant_type: 'client_credentials',
+//   },
+//   json: true,
+// };
+
+router.get('/spotify', (req, res) => {
+  console.log('req', req.body);
+  axios
+    .post('https://accounts.spotify.com/api/token', {
+      headers: {
+        Authorization:
+          'Basic ' +
+          new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
+            'base64'
+          ),
+      },
+      params: {
+        grant_type: 'client_credentials',
+      },
+      json: true,
+    })
+    .then((res) => {
+      console.log('DATA?', res.data.data);
+    })
+    .catch((err) => {
+      console.log('caught error in router', err);
+    });
+});
+// .then((res) => {
+//   console.log(res);
+//   request
+//     .get(options, (error, res, body) => {
+//       console.log('API CALL', options);
+//       body.albums.items.forEach((album) => {
+//         console.log('album', album.uri);
+//       });
+//     })
+
+//     .then(({ data }) => {
+//       // send data here
+//       // res.send(data)
+//       console.log('res', res);
+//       res.send(data.data);
+//     });
+// })
 
 // export "router" variable to be used in other project files
 module.exports = {

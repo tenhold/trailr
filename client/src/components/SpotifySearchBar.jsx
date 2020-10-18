@@ -2,13 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { InputGroup, FormControl, Form } from 'react-bootstrap';
 import { Button } from 'react-bootstrap/Button';
 import axios from 'axios';
+import regeneratorRuntime from 'regenerator-runtime';
+import qs from 'qs';
+// const getAuthToken = require('../../../server/index.js');
 const request = require('request');
 require('dotenv').config();
 
 const SpotifySearchBar = () => {
   const [selectedAlbum, setSelectedAlbum] = useState(null);
   const [selectedAlbumIndex, setSelectedAlbumIndex] = useState(null);
-  const [searchInput, setSearchInput] = useState('');
+  const [searchInput, setSearchInput] = useState(
+    'The Idler Wheel Is Wiser Than the Driver of the Screw and Whipping Cords Will Serve You More Than Ropes Will Ever Do'
+  );
 
   const handleSearchInput = (input) => (e) => {
     console.log(e.target.value);
@@ -16,7 +21,7 @@ const SpotifySearchBar = () => {
     console.log('searched for...', searchInput);
   };
 
-  let SPOTIFY_URI;
+  let SPOTIFY_URI = 'spotify:playlist:1kGDWSxd9wsgLSrwKZnq5Z';
   const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
 
   const handleAlbumSearch = (e) => {
@@ -24,58 +29,24 @@ const SpotifySearchBar = () => {
     console.log('clicked!');
     console.log('searched for', searchInput);
 
-    let options = {
-      url: 'https://accounts.spotify.com/api/token',
-      headers: {
-        Authorization:
-          'Basic ' +
-          new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
-            'base64'
-          ),
-      },
-      form: {
-        grant_type: 'client_credentials',
-      },
-      json: true,
-    };
-    console.log(options);
-    // axios
-    //   .post(options.url, options)
-    //   .then(({ data }) => {
-    //     console.log(data);
-    //     console.log('flag');
-    //     axios.get(options, (error, res, body) => {
-    //       console.log(body);
-    //       body.albums.items.forEach((album) => {
-    //         console.log('album', album.uri);
-    //       });
-    //     });
-    //   })
-    //   .catch((err) => {
-    //     console.log('error with axios in SSB');
-    //   });
-
-    axios.post('https://accounts.spotify.com/api/token', (error, res, body) => {
-      console.log('body.....', body);
-      if (!error && res.statusCode === 200) {
-        // access token allows us to access Spotify API
-        var token = body.access_token;
-        var options = {
-          url: `https://api.spotify.com/v1/search?q=taylor swift&type=album`,
-          headers: {
-            Authorization: 'Bearer ' + token,
-          },
-          json: true,
-        };
-
-        axios.get(options, (error, res, body) => {
-          console.log(body);
-          body.albums.items.forEach((album) => {
-            console.log('album', album.uri);
-          });
-        });
-      }
-    });
+    axios
+      .get('api/spotify', (req, res) => {
+        console.log('hello axios in ssb');
+        console.log('body in axios ssb', req.body);
+        // var options = {
+        //   url: `https://api.spotify.com/v1/search?q=${searchInput}&type=album`,
+        //   headers: {
+        //     Authorization: 'Bearer ' + token,
+        //   },
+        //   json: true,
+        // };
+      })
+      .then((data) => {
+        console.log('---->', data);
+      })
+      .catch((err) => {
+        console.log('error in ssb', err);
+      });
   };
 
   const clearSearchBox = () => {
@@ -85,14 +56,14 @@ const SpotifySearchBar = () => {
   return (
     <div className='md-form active-cyan active-cyan-2 mb-3'>
       <input
-        class='form-control mr-sm-2'
+        className='form-control mr-sm-2'
         type='text'
         placeholder='Search'
         aria-label='Search'
         onChange={handleSearchInput()}
       />
       <button
-        class='btn btn-elegant btn-rounded btn-sm my-0'
+        className='btn btn-elegant btn-rounded btn-sm my-0'
         type='submit'
         onClick={(e) => {
           handleAlbumSearch(e);
@@ -100,6 +71,14 @@ const SpotifySearchBar = () => {
       >
         Search
       </button>
+      <iframe
+        src={`https://open.spotify.com/embed?uri=${SPOTIFY_URI}`}
+        width='300'
+        height='380'
+        frameBorder='0'
+        allowtransparency='true'
+        allow='encrypted-media'
+      ></iframe>
       {/* </input> */}
     </div>
   );

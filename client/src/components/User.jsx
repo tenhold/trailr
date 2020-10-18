@@ -87,7 +87,7 @@ const userPage = ({ user }) => {
 
   return (
     <>
-      {redirect ? <Redirect to="/404" /> : null}
+      {redirect ? <Redirect to='/404' /> : null}
       <Col xs={6}>
         {!photoInfo.length ? null : (
           <>
@@ -113,14 +113,14 @@ const userPage = ({ user }) => {
         <Image thumbnail src={userInfo.url} />
         <br></br>
         <SpotifySearchBar />
-        <iframe
+        {/* <iframe
           src='https://open.spotify.com/embed?uri=spotify:album:5EpMjweRD573ASl7uNiHym'
           width='300'
           height='380'
           frameborder='0'
           allowtransparency='true'
           allow='encrypted-media'
-        ></iframe>
+        ></iframe> */}
         <h2>{userInfo.name} Saved Trails</h2>
         {!myTrails.length
           ? null
