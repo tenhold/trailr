@@ -1250,6 +1250,99 @@ const updateComment = (commentObject) =>
     });
   });
 
+////////// HANGING CHADS ADDITION ////////////
+
+const addEntry = (entry) =>
+  new Promise((resolve, reject) => {
+    poolConnection.getConnection((error, connection) => {
+      if (error) reject(error);
+      const { title, text, id_user } = entry;
+      const addEntryCommand = `
+      INSERT INTO entries (title, text, id_user)
+      VALUES (?, ?, ?)
+    `;
+
+      connection.beginTransaction((error) => {
+        if (error) {
+          connection.rollback(() => {
+            connection.release();
+            resolve(error);
+          });
+        }
+        connection.query(
+          addEntryCommand,
+          [title, text, id_user],
+          (error, addedEntry) => {
+            if (error) {
+              connection.rollback(() => {
+                connection.release();
+                resolve(error);
+              });
+            }
+            connection.commit((error) => {
+              if (error) {
+                connection.rollback(() => {
+                  connection.release();
+                  resolve(error);
+                });
+              }
+              const addEntryResult = addedEntry
+                ? { id: addedEntry.insertId }
+                : { id: null, affectedRows: 0 };
+              connection.release();
+              resolve(addEntryResult);
+            });
+          }
+        );
+      });
+    });
+  });
+
+/**
+ * Deletes entries by id.
+ */
+const deleteEntry = (id) =>
+  new Promise((resolve, reject) => {
+    poolConnection.getConnection((error, connection) => {
+      if (error) reject(error);
+
+      const deleteEntryCommand = `
+      DELETE FROM entries
+      WHERE id = ?
+    `;
+      connection.beginTransaction((error) => {
+        if (error) {
+          connection.rollback(() => {
+            connection.release();
+            resolve(error);
+          });
+        }
+        connection.query(
+          deleteEntryCommand,
+          [id],
+          (error, deletedEntryData) => {
+            if (error) {
+              connection.rollback(() => {
+                connection.release();
+                resolve(error);
+              });
+            }
+            connection.commit((error) => {
+              if (error) {
+                connection.rollback(() => {
+                  connection.release();
+                  resolve(error);
+                });
+              }
+              connection.release();
+              resolve(deletedEntryData);
+            });
+          }
+        );
+      });
+    });
+  });
+
 module.exports = {
   getUser,
   addUser,
@@ -1266,6 +1359,8 @@ module.exports = {
   addFavorite,
   deleteFavorite,
   updateComment,
+  addEntry,
+  deleteEntry,
 };
 
 // mysql -uroot < trailr.sql

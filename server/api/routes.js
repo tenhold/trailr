@@ -23,6 +23,8 @@ const {
   deletePhoto,
   addFavorite,
   deleteFavorite,
+  addEntry,
+  deleteEntry,
 } = require('../../database/index.js');
 
 // import GCS functions
@@ -31,30 +33,40 @@ const { uploadImage, authChecker } = require('../../helpers/helpers');
 // set local variable to  a new instance of express router
 const router = Router();
 
-// router.get('/api/networks', (req, res) => {
-//   const { radius, lat, lon } = req.query;
-//   axios({
-//     method: 'GET',
-//     url: 'https://rapidapi.p.rapidapi.com/valenbisi.json',
-//     headers: {
-//       'x-rapidapi-host': 'community-citybikes.p.rapidapi.com',
-//       'x-rapidapi-key': process.env.BIKE_API,
-//       useQueryString: true,
-//     },
-//     params: {
-//       radius,
-//       lat,
-//       lon,
-//     },
-//   })
-//     .then((response) => {
-//       const bikesInArea = response.data.data;
-//       res.send(bikesInArea);
-//     })
-//     .catch((error) => {
-//       throw error;
-//     });
-// });
+// Add entries
+router.post('/entries', (req, res) => {
+  const { body } = req;
+  if (authChecker(req.user)) {
+    addEntry(body)
+      .then((success) => {
+        res.send(success);
+      })
+      .catch((error) => {
+        res.sendStatus(500);
+        throw error;
+      });
+  } else {
+    res.sendStatus(401);
+  }
+});
+
+// Delete entries
+router.delete('/entries/:id', (req, res) => {
+  if (authChecker(req.user)) {
+    const { id } = req.params;
+    deleteEntry(id)
+      .then((success) => {
+        res.send(success);
+      })
+      .catch((error) => {
+        res.sendStatus(500);
+        throw error;
+      });
+  } else {
+    // Not Authorized
+    res.sendStatus(401);
+  }
+});
 
 /*  Get Request Handlers */
 
