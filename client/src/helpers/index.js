@@ -268,10 +268,10 @@ export const updateComment = (id, text) => new Promise((resolve, reject) => {
     });
 });
 
-export const uploadPhoto = (data) => new Promise((resolve, reject) => {
+export const uploadPhoto = (data, url) => new Promise((resolve, reject) => {
   axios({
     method: 'post',
-    url: '/api/uploads',
+    url: url || '/api/uploads',
     data,
     headers: { 'Content-Type': 'multipart/form-data' }
   })
@@ -282,3 +282,5 @@ export const uploadPhoto = (data) => new Promise((resolve, reject) => {
       reject(err);
     });
 });
+
+

@@ -24,8 +24,6 @@ const addComment = ({
         appendComments({
           text, id: +id, name, id_user: userId,
         });
-
-        // eslint-disable-next-line no-use-before-define
         values.text = '';
       })
       .catch((err) => {

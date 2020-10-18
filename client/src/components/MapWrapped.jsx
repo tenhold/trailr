@@ -33,7 +33,7 @@ const MapWithASearchBox = React.memo(({ getLocation }) => {
   const [selectedTrailIndex, setSelectedTrailIndex] = useState(null);
 
   const getInput = (data) => {
-    console.log(data)
+    console.info(data)
   };
 
   const addPlace = (place) => {
@@ -107,6 +107,9 @@ const MapWithASearchBox = React.memo(({ getLocation }) => {
           lat: (currentBounds.Sa.i + currentBounds.Sa.j) / 2,
           lng: (currentBounds.Ya.i + currentBounds.Ya.j) / 2,
         };
+
+        // used to get the current search location 
+        getLocation(currentCenter);
         const range = 1.2; // lat/lon degrees needed to change in order to search again
         const radius = 100; // search radius in miles
         if (
@@ -146,8 +149,6 @@ const MapWithASearchBox = React.memo(({ getLocation }) => {
 
   useEffect(() => {
     setGoogleMapRef(mapInstance, mapApi);
-    // used to pass the location to app component 
-    getLocation(userLocation);
   }, [places]);
 
   return (

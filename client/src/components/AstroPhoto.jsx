@@ -1,71 +1,55 @@
-import React, { useState } from 'react';
-import { Form } from 'bootstrap';
+import React, { useState, useEffect } from 'react';
+import {Button, Carousel, Container, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
-import { uploadPhoto } from '../helpers'; 
-
+import { results } from '../data/images.json';
 
 
 const AstroPhoto = ({ user }) => {
-  const [bg, setBg] = useState(true);
-  const [image, setimage] = useState(null);
+  const [images, setImages] = useState([]);
+  const [toggle, setToggle] = useState(true);
 
-  const fileSelectedHandler = e => {
-    setimage(e.target.files);
-  };
-
-  const handleUpload = () => {
-
-    // uploadPhoto(image)
-    //   .then(data => {
-    //     console.log(data.data);
-    //     setimage(null);
-    //   })
-  };
-
-  const handleChange = () => {
-    setBg(!bg);
-    console.log(bg)
-  };
+  useEffect(() => {
+    axios.get(`https://api.unsplash.com/search/photos?client_id=${process.env.UNSPLASH_CLIENT_ID}&query=astrophotography`)
+      .then(res => {
+        const { results } = res.data;
+        setImages(results);
+      })
+      .catch(err => console.error(err));
+  }, []);
    
-
-
-
+  const toggleImages = () => setToggle(!toggle);
 
   return (
-    <>
-      <button onClick={handleChange} />
-      <input type='file' onChange={fileSelectedHandler} />
-      <button onClick={handleUpload}>submit</button>
-      <img />
-    </>
+    <Container fluid>
+      <Row style={{paddingBottom: '40px'}}>
+        <Button onClick={toggleImages} variant="dark">
+          {toggle ? 'Get Inspired!' : 'Go Back'}</Button>
+      </Row>
+      {toggle ? null
+        :
+        <Row>
+          <Col md={{ offset: 3 }}>
+            <Carousel style={{paddingBottom: '20px', width: '700px'}} >
+              {images.map(({ id, alt_description, urls: { regular } }) => (
+                <Carousel.Item key={id}>
+                  <img
+                    className="d-block w-100"
+                    style={{width: '500px', height: '400px'}}
+                    src={regular}
+                    alt="astro images"
+                  />
+                  <Carousel.Caption>
+                    <h3>{alt_description}</h3>
+                  </Carousel.Caption>
+                </Carousel.Item>
+              ))}
+            </Carousel>
+          </Col>
+        </Row>
+      }
+    </Container>
   );
   
 };
-
-// <Form>
-//         <Form.Switch 
-//           onChange={handleChange}
-//           type='switch'
-//           id={console.log(Form)}
-//           label='nightmode'
-//           checked={bg}
-//         />
-//       </Form>
-
-// <Button variant="success" onClick={toggleModal}>Add Picture</Button>
-//       <Modal show={modelShow} onHide={toggleModal} size="lg">
-//         <Modal.Header closeButton>
-//           <Modal.Title>Add New Picture</Modal.Title>
-//         </Modal.Header>
-//         <Modal.Body>
-//           <input type='file' onChange={fileSelectedHandler} />
-//           <button onClick={handleUpload}>submit</button>
-//         </Modal.Body>
-//         <Modal.Footer>
-//           <Button variant="danger" onClick={toggleModal}>Close</Button>
-//           {/* <Button variant="success" onClick={submitHandler}>Submit Images</Button> */}
-//         </Modal.Footer>
-//       </Modal> 
-
 
 export default AstroPhoto;

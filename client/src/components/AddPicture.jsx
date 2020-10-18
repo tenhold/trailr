@@ -51,7 +51,6 @@ const addPicture = ({
         // latitude and longitude
         exifr.parse(e.target.files[i])
           .then((metaData) => {
-            console.log(metaData);
             const loc = {};
             if (!metaData) {
               loc.lat = center.lat;

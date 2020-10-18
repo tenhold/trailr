@@ -68,6 +68,5 @@ input.propTypes = {
       label: PropTypes.string,
     }),
   ),
-  // eslint-disable-next-line react/forbid-prop-types
   style: PropTypes.object,
 };
