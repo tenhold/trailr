@@ -1,6 +1,6 @@
 // import axios framework for http requests
 const axios = require('axios');
-
+const qs = require('qs');
 const request = require('request');
 
 // import & destructor Router method from express framework
@@ -30,6 +30,31 @@ const { uploadImage, authChecker } = require('../../helpers/helpers');
 
 // set local variable to  a new instance of express router
 const router = Router();
+
+// router.get('/api/networks', (req, res) => {
+//   const { radius, lat, lon } = req.query;
+//   axios({
+//     method: 'GET',
+//     url: 'https://rapidapi.p.rapidapi.com/valenbisi.json',
+//     headers: {
+//       'x-rapidapi-host': 'community-citybikes.p.rapidapi.com',
+//       'x-rapidapi-key': process.env.BIKE_API,
+//       useQueryString: true,
+//     },
+//     params: {
+//       radius,
+//       lat,
+//       lon,
+//     },
+//   })
+//     .then((response) => {
+//       const bikesInArea = response.data.data;
+//       res.send(bikesInArea);
+//     })
+//     .catch((error) => {
+//       throw error;
+//     });
+// });
 
 /*  Get Request Handlers */
 
@@ -488,64 +513,6 @@ router.delete('/favorites', (req, res) => {
     res.sendStatus(401);
   }
 });
-
-const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
-
-// let authOptions = {
-//   url: 'https://accounts.spotify.com/api/token',
-//   headers: {
-//     Authorization:
-//       'Basic ' +
-//       new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
-//         'base64'
-//       ),
-//   },
-//   form: {
-//     grant_type: 'client_credentials',
-//   },
-//   json: true,
-// };
-
-router.get('/spotify', (req, res) => {
-  console.log('req', req.body);
-  axios
-    .post('https://accounts.spotify.com/api/token', {
-      headers: {
-        Authorization:
-          'Basic ' +
-          new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
-            'base64'
-          ),
-      },
-      params: {
-        grant_type: 'client_credentials',
-      },
-      json: true,
-    })
-    .then((res) => {
-      console.log('DATA?', res.data.data);
-    })
-    .catch((err) => {
-      console.log('caught error in router', err);
-    });
-});
-// .then((res) => {
-//   console.log(res);
-//   request
-//     .get(options, (error, res, body) => {
-//       console.log('API CALL', options);
-//       body.albums.items.forEach((album) => {
-//         console.log('album', album.uri);
-//       });
-//     })
-
-//     .then(({ data }) => {
-//       // send data here
-//       // res.send(data)
-//       console.log('res', res);
-//       res.send(data.data);
-//     });
-// })
 
 // export "router" variable to be used in other project files
 module.exports = {
