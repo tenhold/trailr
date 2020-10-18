@@ -9,7 +9,6 @@ const AstroPhoto = ({ user }) => {
   const [toggle, setToggle] = useState(true);
 
   useEffect(() => {
-    // axios.get(`https://api.unsplash.com/photos/random?client_id=${process.env.UNSPLASH_CLIENT_ID}&query=astrophotography`)
     axios.get(`https://api.unsplash.com/search/photos?client_id=${process.env.UNSPLASH_CLIENT_ID}&query=astrophotography`)
       .then(res => {
         const { results } = res.data;
