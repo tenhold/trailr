@@ -1,6 +1,38 @@
 import { useState } from 'react';
 import axios from 'axios';
 
+export const addEntryToLog = (idUser, title, text) =>
+  new Promise((resolve, reject) => {
+    axios({
+      method: 'post',
+      url: '/api/entries',
+      data: {
+        id_user: idUser,
+        title,
+        text,
+      },
+    })
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+
+export const deleteEntryFromLog = (entryId) =>
+  new Promise((resolve, reject) => {
+    axios({
+      method: 'delete',
+      url: `/api/entries/${entryId}`,
+    })
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 /**
  * useForm: A custom hook for forms that takes a callback functin that will be called
  *  when the user submits the form. It returns the form values and the handlers for
@@ -32,61 +64,64 @@ export const useForm = (callback) => {
 /**
  * Checks the session on the server to see if there is a logged in user
  */
-export const getAuth = () => new Promise((resolve, reject) => {
-  axios({
-    method: 'get',
-    url: '/auth/session',
-  })
-    .then((response) => {
-      resolve(response.data);
+export const getAuth = () =>
+  new Promise((resolve, reject) => {
+    axios({
+      method: 'get',
+      url: '/auth/session',
     })
-    .catch((err) => {
-      reject(err);
-    });
-});
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 
 /**
  * Calls the api to get a user's data
  * @param {Number} userId a user's id number based on page params
  */
-export const getUserData = (userId) => new Promise((resolve, reject) => {
-  axios({
-    method: 'get',
-    url: `/api/users/${userId}`,
-  })
-    .then((response) => {
-      resolve(response.data);
+export const getUserData = (userId) =>
+  new Promise((resolve, reject) => {
+    axios({
+      method: 'get',
+      url: `/api/users/${userId}`,
     })
-    .catch((err) => {
-      console.error("ERROR GETTING USER:", err);
-      reject(err);
-    });
-});
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((err) => {
+        console.error('ERROR GETTING USER:', err);
+        reject(err);
+      });
+  });
 
 /**
  * Calls the DB to get a trail's data
  * @param {Number} trailId a trail's api id
  * @param {Number} userId undefined if not logged in
  */
-export const getTrailData = (trailId, userId) => new Promise((resolve, reject) => {
-  axios({
-    method: 'get',
-    url: `/api/trails/${trailId}`,
-    params: {
-      id: userId,
-    },
-  })
-    .then((response) => {
-      if (Array.isArray(response.data)) {
-        resolve(false);
-      } else {
-        resolve(response.data);
-      }
+export const getTrailData = (trailId, userId) =>
+  new Promise((resolve, reject) => {
+    axios({
+      method: 'get',
+      url: `/api/trails/${trailId}`,
+      params: {
+        id: userId,
+      },
     })
-    .catch((err) => {
-      reject(err);
-    });
-});
+      .then((response) => {
+        if (Array.isArray(response.data)) {
+          resolve(false);
+        } else {
+          resolve(response.data);
+        }
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 
 /**
  * Update the user's rating must be like or diff returns new rating
@@ -95,23 +130,24 @@ export const getTrailData = (trailId, userId) => new Promise((resolve, reject) =
  * @param {Number} idUser id of the user
  * @param {Number} idTrail id of the trail
  */
-export const updateUserRating = (type, value, idUser, idTrail) => new Promise((resolve, reject) => {
-  axios({
-    method: 'put',
-    url: type === 'like' ? '/api/likeability' : '/api/difficulty',
-    data: {
-      id_user: idUser,
-      id_trail: idTrail,
-      value,
-    },
-  })
-    .then((response) => {
-      resolve(response.data[0]);
+export const updateUserRating = (type, value, idUser, idTrail) =>
+  new Promise((resolve, reject) => {
+    axios({
+      method: 'put',
+      url: type === 'like' ? '/api/likeability' : '/api/difficulty',
+      data: {
+        id_user: idUser,
+        id_trail: idTrail,
+        value,
+      },
     })
-    .catch((err) => {
-      reject(err);
-    });
-});
+      .then((response) => {
+        resolve(response.data[0]);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 
 /**
  * Adds a comment to the given photo by the given user
@@ -119,84 +155,88 @@ export const updateUserRating = (type, value, idUser, idTrail) => new Promise((r
  * @param {Number} idUser id of user submitting comment
  * @param {Number} idPhoto id of photo to attach the comment to
  */
-export const addCommentToPhoto = (text, idUser, idPhoto) => new Promise((resolve, reject) => {
-  axios({
-    method: 'post',
-    url: '/api/comments',
-    data: {
-      text,
-      id_user: idUser,
-      id_photo: idPhoto,
-    },
-  })
-    .then((response) => {
-      resolve(response.data);
+export const addCommentToPhoto = (text, idUser, idPhoto) =>
+  new Promise((resolve, reject) => {
+    axios({
+      method: 'post',
+      url: '/api/comments',
+      data: {
+        text,
+        id_user: idUser,
+        id_photo: idPhoto,
+      },
     })
-    .catch((err) => {
-      reject(err);
-    });
-});
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 
 /**
  * Deletes a photo, only call if you already verified the user is authorized
  *  to delete the photo
  * @param {Number} idPhoto id of the photo to delete
  */
-export const deletePhoto = (idPhoto) => new Promise((resolve, reject) => {
-  axios({
-    method: 'delete',
-    url: `/api/photos/${idPhoto}`,
-  })
-    .then((response) => {
-      resolve(response.data);
+export const deletePhoto = (idPhoto) =>
+  new Promise((resolve, reject) => {
+    axios({
+      method: 'delete',
+      url: `/api/photos/${idPhoto}`,
     })
-    .catch((err) => {
-      reject(err);
-    });
-});
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 
 /**
  * Deletes a comment, only call if you have already verified the user is authorized
  *  to delete the comment
  * @param {Number} commentId id of comment to delete
  */
-export const deleteComment = (commentId) => new Promise((resolve, reject) => {
-  axios({
-    method: 'delete',
-    url: `/api/comments/${commentId}`,
-  })
-    .then((response) => {
-      resolve(response.data);
+export const deleteComment = (commentId) =>
+  new Promise((resolve, reject) => {
+    axios({
+      method: 'delete',
+      url: `/api/comments/${commentId}`,
     })
-    .catch((err) => {
-      reject(err);
-    });
-});
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 
 /**
  * Adds a trail to the db based on an api call
  * @param {Object} trail contains api trail info
  */
-export const addTrail = (trail) => new Promise((resolve, reject) => {
-  let { description } = trail;
-  if (description.length >= 1499) {
-    description = description.substring(0, 1499);
-  }
-  axios({
-    method: 'post',
-    url: '/api/trails',
-    data: {
-      ...trail,
-      description,
-    },
-  })
-    .then((response) => {
-      resolve(response.data);
+export const addTrail = (trail) =>
+  new Promise((resolve, reject) => {
+    let { description } = trail;
+    if (description.length >= 1499) {
+      description = description.substring(0, 1499);
+    }
+    axios({
+      method: 'post',
+      url: '/api/trails',
+      data: {
+        ...trail,
+        description,
+      },
     })
-    .catch((err) => {
-      reject(err);
-    });
-});
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 
 /**
  * Updates the favorite table, either removing or adding a favorite based
@@ -205,22 +245,23 @@ export const addTrail = (trail) => new Promise((resolve, reject) => {
  * @param {Number} id_user id of user to effect
  * @param {Boolean} remove true if removing a favorite
  */
-export const updateFavorite = (idTrail, idUser, remove) => new Promise((resolve, reject) => {
-  axios({
-    method: remove ? 'delete' : 'post',
-    url: '/api/favorites',
-    data: {
-      id_trail: idTrail,
-      id_user: idUser,
-    },
-  })
-    .then((response) => {
-      resolve(response);
+export const updateFavorite = (idTrail, idUser, remove) =>
+  new Promise((resolve, reject) => {
+    axios({
+      method: remove ? 'delete' : 'post',
+      url: '/api/favorites',
+      data: {
+        id_trail: idTrail,
+        id_user: idUser,
+      },
     })
-    .catch((err) => {
-      reject(err);
-    });
-});
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 
 /**
  * Checks if the current route is favorited, this could get a specialized database call,
@@ -228,59 +269,60 @@ export const updateFavorite = (idTrail, idUser, remove) => new Promise((resolve,
  * @param {Number} idTrail id of the trail to see if it is a favorite
  * @param {Number} idUser id of the user to check
  */
-export const getFavoriteStatus = (trailId, userId) => new Promise((resolve, reject) => {
-  axios({
-    method: 'get',
-    url: `/api/users/${userId}`,
-  })
-    .then((response) => {
-      response.data.favorites.forEach((trail) => {
-        if (trail.id === +trailId) {
-          resolve(true);
-        }
-      });
-      resolve(false);
+export const getFavoriteStatus = (trailId, userId) =>
+  new Promise((resolve, reject) => {
+    axios({
+      method: 'get',
+      url: `/api/users/${userId}`,
     })
-    .catch((err) => {
-      reject(err);
-    });
-});
+      .then((response) => {
+        response.data.favorites.forEach((trail) => {
+          if (trail.id === +trailId) {
+            resolve(true);
+          }
+        });
+        resolve(false);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 
 /**
  * Updates a comment's text by its id
  * @param {Number} id the id of the comment to update
  * @param {String} text the text to replace it with
  */
-export const updateComment = (id, text) => new Promise((resolve, reject) => {
-  axios({
-    method: 'put',
-    url: '/api/comments',
-    data: {
-      id,
-      text,
-    },
-  })
-    .then((response) => {
-      resolve(response);
+export const updateComment = (id, text) =>
+  new Promise((resolve, reject) => {
+    axios({
+      method: 'put',
+      url: '/api/comments',
+      data: {
+        id,
+        text,
+      },
     })
-    .catch((err) => {
-      reject(err);
-    });
-});
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
 
-export const uploadPhoto = (data, url) => new Promise((resolve, reject) => {
-  axios({
-    method: 'post',
-    url: url || '/api/uploads',
-    data,
-    headers: { 'Content-Type': 'multipart/form-data' }
-  })
-    .then((response) => {
-      resolve(response.data);
+export const uploadPhoto = (data) =>
+  new Promise((resolve, reject) => {
+    axios({
+      method: 'post',
+      url: '/api/uploads',
+      data,
+      headers: { 'Content-Type': 'multipart/form-data' },
     })
-    .catch((err) => {
-      reject(err);
-    });
-});
-
-
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });

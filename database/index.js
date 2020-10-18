@@ -20,7 +20,6 @@ if (!process.env.NODE_ENV) {
     password: '',
     database: 'trailr',
   });
-  console.log('Running LOCAL');
 } else if (
   process.env.NODE_ENV === 'PROD_LOCAL' &&
   !process.env.DB_INSTANCE_CONNECTION_NAME
@@ -35,9 +34,7 @@ if (!process.env.NODE_ENV) {
     waitForConnections: true,
     queueLimit: 0,
   });
-  console.log('Running PROD_LOCAL');
 } else {
-  console.log(process.env.DB_USER, process.env.DB_INSTANCE_CONNECTION_NAME);
   poolConnection = mysql.createPool({
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
@@ -49,7 +46,7 @@ if (!process.env.NODE_ENV) {
     connectionLimit: 20,
     queueLimit: 20,
   });
-  console.log('Running CloudSQL');
+  console.info('Connected to CloudSQL');
 }
 
 /**
@@ -59,10 +56,8 @@ if (!process.env.NODE_ENV) {
 const getUser = (id) =>
   new Promise((resolve, reject) => {
     poolConnection.getConnection((error, connection) => {
-      // console.log('connection', connection);
       if (error) {
-        console.log('error in getUser', error);
-        // reject(error);
+        reject(error);
       }
       const getUserCommand = `
       SELECT *
@@ -200,7 +195,6 @@ const getUser = (id) =>
 const addUser = (userObject) =>
   new Promise((resolve, reject) => {
     poolConnection.getConnection((error, connection) => {
-      // console.log('line 200', connection);
       if (error) reject(error);
 
       const checkUserCommand = `
@@ -1250,6 +1244,97 @@ const updateComment = (commentObject) =>
     });
   });
 
+const addEntry = (entry) =>
+  new Promise((resolve, reject) => {
+    poolConnection.getConnection((error, connection) => {
+      if (error) reject(error);
+      const { id_user, title, text } = entry;
+      const addEntryCommand = `
+      INSERT INTO entries (id_user, title, text)
+      VALUES (?, ?, ?)
+    `;
+
+      connection.beginTransaction((error) => {
+        if (error) {
+          connection.rollback(() => {
+            connection.release();
+            resolve(error);
+          });
+        }
+        connection.query(
+          addEntryCommand,
+          [id_user, title, text],
+          (error, addedEntry) => {
+            if (error) {
+              connection.rollback(() => {
+                connection.release();
+                resolve(error);
+              });
+            }
+            connection.commit((error) => {
+              if (error) {
+                connection.rollback(() => {
+                  connection.release();
+                  resolve(error);
+                });
+              }
+              const addEntryResult = addedEntry
+                ? { id: addedEntry.insertId }
+                : { id: null, affectedRows: 0 };
+              connection.release();
+              resolve(addEntryResult);
+            });
+          }
+        );
+      });
+    });
+  });
+
+/**
+ * Deletes entries by id.
+ */
+const deleteEntry = (id) =>
+  new Promise((resolve, reject) => {
+    poolConnection.getConnection((error, connection) => {
+      if (error) reject(error);
+
+      const deleteEntryCommand = `
+      DELETE FROM entries
+      WHERE id = ?
+    `;
+      connection.beginTransaction((error) => {
+        if (error) {
+          connection.rollback(() => {
+            connection.release();
+            resolve(error);
+          });
+        }
+        connection.query(
+          deleteEntryCommand,
+          [id],
+          (error, deletedEntryData) => {
+            if (error) {
+              connection.rollback(() => {
+                connection.release();
+                resolve(error);
+              });
+            }
+            connection.commit((error) => {
+              if (error) {
+                connection.rollback(() => {
+                  connection.release();
+                  resolve(error);
+                });
+              }
+              connection.release();
+              resolve(deletedEntryData);
+            });
+          }
+        );
+      });
+    });
+  });
+
 module.exports = {
   getUser,
   addUser,
@@ -1266,6 +1351,8 @@ module.exports = {
   addFavorite,
   deleteFavorite,
   updateComment,
+  addEntry,
+  deleteEntry,
 };
 
 // mysql -uroot < trailr.sql

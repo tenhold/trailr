@@ -1,8 +1,6 @@
 // import axios framework for http requests
 const axios = require('axios');
 
-const request = require('request');
-
 // import & destructor Router method from express framework
 const { Router } = require('express');
 
@@ -23,6 +21,8 @@ const {
   deletePhoto,
   addFavorite,
   deleteFavorite,
+  addEntry,
+  deleteEntry,
 } = require('../../database/index.js');
 
 // import GCS functions
@@ -30,6 +30,64 @@ const { uploadImage, authChecker } = require('../../helpers/helpers');
 
 // set local variable to  a new instance of express router
 const router = Router();
+
+router.get('/entries/:id', (req, res) => {
+  let { id } = req.query;
+
+  if (!id && req.user) {
+    id = req.user.id;
+  }
+  const idT = req.params.id;
+  const entryObject = {
+    id_user: id,
+    title: req.query.title,
+    text: req.query.text,
+  };
+  getTrail(entryObject)
+    .then((success) => {
+      res.send(success);
+    })
+    .catch((error) => {
+      res.sendStatus(500);
+      throw error;
+    });
+});
+
+// Add entries
+router.post('/entries', (req, res) => {
+  const { body } = req;
+
+  if (authChecker(req.user)) {
+    addEntry(body)
+      .then((success) => {
+        res.send(success);
+      })
+      .catch((error) => {
+        res.sendStatus(500);
+        throw error;
+      });
+  } else {
+    res.sendStatus(401);
+  }
+});
+
+// Delete entries
+router.delete('/entries/:id', (req, res) => {
+  if (authChecker(req.user)) {
+    const { id } = req.params;
+    deleteEntry(id)
+      .then((success) => {
+        res.send(success);
+      })
+      .catch((error) => {
+        res.sendStatus(500);
+        throw error;
+      });
+  } else {
+    // Not Authorized
+    res.sendStatus(401);
+  }
+});
 
 /*  Get Request Handlers */
 
@@ -108,7 +166,6 @@ router.get('/users/:id', (req, res) => {
   const { id } = req.params;
   getUser(id)
     .then((success) => {
-      // console.log('SUCESSS GETING USER', success)
       res.send(success);
     })
     .catch((error) => {
@@ -236,7 +293,6 @@ router.post('/uploads', (req, res) => {
           id_trail: +trailId,
         })
           .then((success) => {
-            console.log('addPhoto in uploadImage worked', success);
             res.json({
               message: 'Upload was successful',
               img: {
@@ -488,64 +544,6 @@ router.delete('/favorites', (req, res) => {
     res.sendStatus(401);
   }
 });
-
-const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
-
-// let authOptions = {
-//   url: 'https://accounts.spotify.com/api/token',
-//   headers: {
-//     Authorization:
-//       'Basic ' +
-//       new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
-//         'base64'
-//       ),
-//   },
-//   form: {
-//     grant_type: 'client_credentials',
-//   },
-//   json: true,
-// };
-
-router.get('/spotify', (req, res) => {
-  console.log('req', req.body);
-  axios
-    .post('https://accounts.spotify.com/api/token', {
-      headers: {
-        Authorization:
-          'Basic ' +
-          new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
-            'base64'
-          ),
-      },
-      params: {
-        grant_type: 'client_credentials',
-      },
-      json: true,
-    })
-    .then((res) => {
-      console.log('DATA?', res.data.data);
-    })
-    .catch((err) => {
-      console.log('caught error in router', err);
-    });
-});
-// .then((res) => {
-//   console.log(res);
-//   request
-//     .get(options, (error, res, body) => {
-//       console.log('API CALL', options);
-//       body.albums.items.forEach((album) => {
-//         console.log('album', album.uri);
-//       });
-//     })
-
-//     .then(({ data }) => {
-//       // send data here
-//       // res.send(data)
-//       console.log('res', res);
-//       res.send(data.data);
-//     });
-// })
 
 // export "router" variable to be used in other project files
 module.exports = {

@@ -1,1 +1,1 @@
-GET HTTP://localhost:8080/api/spotify
+GET HTTP://localhost:8080/api/users/1

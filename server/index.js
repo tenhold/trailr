@@ -3,13 +3,7 @@ require('dotenv').config();
 
 const cors = require('cors');
 
-//////////////
-// Kris add //
-/////////////
-let request = require('request');
-
-//////////////////////////////
-
+const { addEntry } = require('../database/index.js');
 // require passport-setup file, to enable passport middleware
 require('../config/passport-setup');
 
@@ -53,48 +47,6 @@ const multerMid = multer({
     fileSize: 5 * 1024 * 1024,
   },
 });
-
-// const getAuthToken = function () {
-//   let authOptions = {
-//     url: 'https://accounts.spotify.com/api/token',
-//     headers: {
-//       Authorization:
-//         'Basic ' +
-//         new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
-//           'base64'
-//         ),
-//     },
-//     form: {
-//       grant_type: 'client_credentials',
-//     },
-//     json: true,
-//   };
-
-// console.log('ACCESS TOKEN', authOptions);
-//   request.post(authOptions, (error, res, body) => {
-//     console.log('post', authOptions);
-//     if (!error && res.statusCode === 200) {
-//       // access token allows us to access Spotify API
-//       var token = body.access_token;
-//       var options = {
-//         url: 'https://api.spotify.com/v1/search?q=taylor swift&type=album',
-//         headers: {
-//           Authorization: 'Bearer ' + token,
-//         },
-//         json: true,
-//       };
-//     }
-
-//     request.get(options, (error, res, body) => {
-//       console.log('API CALL', options);
-//       body.albums.items.forEach((album) => {
-//         console.log('album', album.uri);
-//       });
-//     });
-//   });
-// };
-
-// getAuthToken();
 
 app.use(cors());
 
@@ -177,59 +129,19 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '/../client/dist/index.html'));
 });
 
-const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
-var SPOTIFY_URI;
+app.post('/api/entries', (req, res) => {
+  addEntry(req.body)
+    .then((results) => {
+      res.status(200);
+      res.send(results);
+    })
+    .catch((err) => {
+      res.status(500);
+      res.send('Error getting entries', err);
+    });
+});
 
-let postQuery = 'grant_type=client_credentials ';
-
-// app.post('/v1/spotify/api/token', function (req, res) {
-//   let body = req.body;
-//   let redirect_uri = body.redirect_uri;
-//   let code = body.code;
-
-//   let data = {
-//     grant_type: 'client_credentials',
-//     redirect_uri: redirect_uri,
-//     code: code,
-//   };
-
-//   fetch('https://accounts.spotify.com/api/token', {
-//     method: 'POST',
-//     headers: {
-//       Authorization: `Basic ${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`,
-//       'Content-Type': 'application/x-www-form-urlencoded',
-//     },
-//     body: JSON.stringify(data),
-//   }).then((r) => r.json().then((data) => res.send(data)));
-// });
-// app.get('https://accounts.spotify.com/api/token', function (req, res) {
-//   console.log('connecting...');
-//   request(
-//     {
-//       url: 'https://accounts.spotify.com/api/token',
-//       method: 'POST',
-//       headers: {
-//         Authorization:
-//           'Basic ' +
-//           new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
-//             'base64'
-//           ),
-//         'Content-Type': 'application/x-www-form-urlencoded',
-//       },
-//       body: postQuery,
-//     },
-//     function (error, response, data) {
-//       //send the access token back to client
-//       console.log('heres yo data', data);
-//       res.end(data);
-//     }
-//   )
-// });
-
-// console.log('uri????????>>>>>>>>', URI);
 // set server to listen for requests on configured report
 app.listen(process.env.PORT || PORT, () => {
   console.info(`Server Walking The Trails on http://localhost:${PORT}`);
 });
-
-// module.exports = { getAuthToken };
