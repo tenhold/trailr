@@ -9,7 +9,7 @@ import InfoWindow from './InfoWindow.jsx';
 import GoogleMap from './GoogleMap.jsx';
 import SearchBox from './SearchBox.jsx';
 import transparentMarker from '../../assets/imgs/transparentMarker.png';
-import WeatherBar from './WeatherBar.jsx'
+import WeatherBar from './WeatherBar.jsx';
 import * as trailData from '../data/trail-data.json';
 
 /**
@@ -33,7 +33,7 @@ const MapWithASearchBox = React.memo(({ getLocation }) => {
   const [selectedTrailIndex, setSelectedTrailIndex] = useState(null);
 
   const getInput = (data) => {
-    console.info(data)
+    console.info(data);
   };
 
   const addPlace = (place) => {
@@ -70,7 +70,8 @@ const MapWithASearchBox = React.memo(({ getLocation }) => {
   useEffect(() => {
     updateTrails(100, userLocation.lat, userLocation.lng);
     const script = document.createElement('script');
-    script.src = 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js';
+    script.src =
+      'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js';
     script.async = true;
     document.body.appendChild(script);
 
@@ -108,13 +109,13 @@ const MapWithASearchBox = React.memo(({ getLocation }) => {
           lng: (currentBounds.Ya.i + currentBounds.Ya.j) / 2,
         };
 
-        // used to get the current search location 
+        // used to get the current search location
         getLocation(currentCenter);
         const range = 1.2; // lat/lon degrees needed to change in order to search again
         const radius = 100; // search radius in miles
         if (
-          Math.abs(+currentCenter.lat - +lastSearchedCenter.lat) > range
-          || Math.abs(+currentCenter.lng - +lastSearchedCenter.lng) > range
+          Math.abs(+currentCenter.lat - +lastSearchedCenter.lat) > range ||
+          Math.abs(+currentCenter.lng - +lastSearchedCenter.lng) > range
         ) {
           lastSearchedCenter = currentCenter;
           updateTrails(radius, currentCenter.lat, currentCenter.lng);
@@ -133,13 +134,18 @@ const MapWithASearchBox = React.memo(({ getLocation }) => {
           coordinates.push({ lat: +currentTrail.lat, lng: +currentTrail.lon });
           return coordinates;
         }, []);
-        const markers = locations
-        && locations.map((location) => new googleRef.Marker({
-          position: location,
-          icon: transparentMarker,
-        }));
+        const markers =
+          locations &&
+          locations.map(
+            (location) =>
+              new googleRef.Marker({
+                position: location,
+                icon: transparentMarker,
+              })
+          );
         new MarkerClusterer(map, markers, {
-          imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+          imagePath:
+            'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
           gridSize: 15,
           minimumClusterSize: 2,
         });
@@ -162,10 +168,8 @@ const MapWithASearchBox = React.memo(({ getLocation }) => {
           getInput={getInput}
         />
       )}
-      <div className="mb-3">
-        <WeatherBar
-          userLocation={userLocation}
-        />
+      <div className='mb-3'>
+        <WeatherBar userLocation={userLocation} />
       </div>
       <GoogleMap
         defaultZoom={10}
@@ -182,8 +186,8 @@ const MapWithASearchBox = React.memo(({ getLocation }) => {
         onGoogleApiLoaded={({ map, maps }) => setGoogleMapRef(map, maps)}
         options={{ streetViewControl: false }}
       >
-        {!isEmpty(places)
-          && places.map((place, i) => (
+        {!isEmpty(places) &&
+          places.map((place, i) => (
             <Marker
               color={i === selectedTrailIndex ? 'green' : 'blue'}
               key={place.id}
@@ -192,7 +196,6 @@ const MapWithASearchBox = React.memo(({ getLocation }) => {
               lat={place.lat || place.geometry.location.lat()}
               lng={place.lon || place.geometry.location.lng()}
               clickHandler={() => {
-                // console.log('is this i?', i);
                 if (selectedTrailIndex === i) {
                   clearSelectedTrail();
                 } else {
@@ -214,7 +217,7 @@ const MapWithASearchBox = React.memo(({ getLocation }) => {
             }}
           >
             <div>
-              <Link to={`/trail/${selectedTrail.id}`} activeclassname="active">
+              <Link to={`/trail/${selectedTrail.id}`} activeclassname='active'>
                 <h2>{selectedTrail.name}</h2>
               </Link>
               <p>{selectedTrail.length} miles</p>

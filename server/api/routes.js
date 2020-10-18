@@ -1,7 +1,5 @@
 // import axios framework for http requests
 const axios = require('axios');
-const qs = require('qs');
-const request = require('request');
 
 // import & destructor Router method from express framework
 const { Router } = require('express');
@@ -33,9 +31,32 @@ const { uploadImage, authChecker } = require('../../helpers/helpers');
 // set local variable to  a new instance of express router
 const router = Router();
 
+router.get('/entries/:id', (req, res) => {
+  let { id } = req.query;
+
+  if (!id && req.user) {
+    id = req.user.id;
+  }
+  const idT = req.params.id;
+  const entryObject = {
+    id_user: id,
+    title: req.query.title,
+    text: req.query.text,
+  };
+  getTrail(entryObject)
+    .then((success) => {
+      res.send(success);
+    })
+    .catch((error) => {
+      res.sendStatus(500);
+      throw error;
+    });
+});
+
 // Add entries
 router.post('/entries', (req, res) => {
   const { body } = req;
+
   if (authChecker(req.user)) {
     addEntry(body)
       .then((success) => {
@@ -145,7 +166,6 @@ router.get('/users/:id', (req, res) => {
   const { id } = req.params;
   getUser(id)
     .then((success) => {
-      // console.log('SUCESSS GETING USER', success)
       res.send(success);
     })
     .catch((error) => {
@@ -273,7 +293,6 @@ router.post('/uploads', (req, res) => {
           id_trail: +trailId,
         })
           .then((success) => {
-            console.log('addPhoto in uploadImage worked', success);
             res.json({
               message: 'Upload was successful',
               img: {

@@ -11,7 +11,6 @@ import Image from 'react-bootstrap/Image';
 import { getUserData, getAuth } from '../helpers';
 import Carousel from './Carousel.jsx';
 import AddComment from './AddComment.jsx';
-import SpotifySearchBar from './SpotifySearchBar.jsx';
 
 /**
  * Displays the indiviual user page with their saved trails and all their photos

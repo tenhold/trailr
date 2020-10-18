@@ -21,9 +21,6 @@ passport.use(
     },
     (accessToken, refreshToken, profile, done) => {
       // passport callback function
-      // console.log('passport callback fired'); // indication that function fired
-      // console.log('USER PROFILE', profile); // shows returned profile information
-      // console.log('GOOGLE CLIENT ID: ', process.env.GOOGLE_CLIENT_ID);
       const { displayName, id, photos } = profile;
       addUser({
         google_id: id,
@@ -31,7 +28,6 @@ passport.use(
         profile_photo_url: photos[0].value,
       })
         .then((newUser) => {
-          console.log(`Created New User: ${newUser}`);
           // completes the http request, and sends information to next function in middleware chain
           done(null, newUser);
         })

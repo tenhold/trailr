@@ -3,20 +3,7 @@ require('dotenv').config();
 
 const cors = require('cors');
 
-//////////////
-// Kris add //
-/////////////
-let request = require('request');
-const SpotifyWebApi = require('spotify-web-api-node');
-const { getAccessToken } = require('./api/spotify_api');
-const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = process.env;
-const credentials = {
-  clientId: SPOTIFY_CLIENT_ID,
-  clientSecret: SPOTIFY_CLIENT_SECRET,
-};
-const spotifyApi = new SpotifyWebApi(credentials);
-//////////////////////////////
-
+const { addEntry } = require('../database/index.js');
 // require passport-setup file, to enable passport middleware
 require('../config/passport-setup');
 
@@ -142,126 +129,18 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '/../client/dist/index.html'));
 });
 
-/////////////////////////////// SPOTIFY /////////////////////////////////
+app.post('/api/entries', (req, res) => {
+  addEntry(req.body)
+    .then((results) => {
+      res.status(200);
+      res.send(results);
+    })
+    .catch((err) => {
+      res.status(500);
+      res.send('Error getting entries', err);
+    });
+});
 
-// app.get('/api/spotify', getAccessToken, (req, res) => {
-//   console.log(req.headers['authorization']);
-//   res.send('hello');
-// });
-
-// let access_token;
-// spotifyApi
-//   .clientCredentialsGrant()
-//   .then((data) => {
-//     access_token = data.body['access_token'];
-//     const refresh_token = data.body['refresh_token'];
-//     const expires_in = data.body['expires_in'];
-
-//     spotifyApi.setAccessToken(access_token);
-//     spotifyApi.setRefreshToken(refresh_token);
-
-//     console.log(
-//       `Ding! You have a token: ${access_token}! Expires in ${expires_in}`
-//     );
-//   })
-//   .catch((err) => {
-//     console.log('Error getting tokens.', err);
-//   });
-
-// app.post('/api/spotify', (req, res) => {
-//   let header = {
-//     headers: {
-//       Authorization: 'Bearer ' + access_token,
-//     },
-//   };
-// });
-// console.log(access_token);
-
-// app.get('/spotify', function (req, res) {
-//   request(
-//     {
-//       url: 'https://accounts.spotify.com/api/token',
-//       method: 'POST',
-//       headers: {
-//         Authorization: 'Basic YourBase64EncodedCredentials',
-//         'Content-Type': 'application/x-www-form-urlencoded',
-//         'Content-Length': postQuery.length,
-//       },
-//       body: postQuery,
-//     },
-//     function (error, response, data) {
-//       //send the access token back to client
-//       res.end(data);
-//     }
-//   );
-// });
-
-// app.get('/api/token', (req, res) => {
-//   axios({
-//     method: 'post',
-//     url: 'https://accounts.spotify.com/api/token',
-//     headers: {
-//       Authorization: 'Basic ' + SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET,
-//       'Content-Type': 'application/x-www-form-urlencoded',
-//     },
-//     params: {
-//       grant_type: 'client_credentials',
-//     },
-//     json: true,
-//   })
-//     .then((body) => {
-//       console.log(body);
-//       res.send(body.data.access_token);
-//     })
-//     .catch((e) => {
-//       console.log(e.response.data);
-//     });
-// });
-// app.post('/v1/spotify/api/token', function (req, res) {
-//   let body = req.body;
-//   let redirect_uri = body.redirect_uri;
-//   let code = body.code;
-
-//   let data = {
-//     grant_type: 'client_credentials',
-//     redirect_uri: redirect_uri,
-//     code: code,
-//   };
-
-//   fetch('https://accounts.spotify.com/api/token', {
-//     method: 'POST',
-//     headers: {
-//       Authorization: `Basic ${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`,
-//       'Content-Type': 'application/x-www-form-urlencoded',
-//     },
-//     body: JSON.stringify(data),
-//   }).then((r) => r.json().then((data) => res.send(data)));
-// });
-// app.get('https://accounts.spotify.com/api/token', function (req, res) {
-//   console.log('connecting...');
-//   request(
-//     {
-//       url: 'https://accounts.spotify.com/api/token',
-//       method: 'POST',
-//       headers: {
-//         Authorization:
-//           'Basic ' +
-//           new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
-//             'base64'
-//           ),
-//         'Content-Type': 'application/x-www-form-urlencoded',
-//       },
-//       body: postQuery,
-//     },
-//     function (error, response, data) {
-//       //send the access token back to client
-//       console.log('heres yo data', data);
-//       res.end(data);
-//     }
-//   )
-// });
-
-// console.log('uri????????>>>>>>>>', URI);
 // set server to listen for requests on configured report
 app.listen(process.env.PORT || PORT, () => {
   console.info(`Server Walking The Trails on http://localhost:${PORT}`);

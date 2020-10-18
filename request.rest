@@ -1,1 +1,1 @@
-POST HTTP://localhost:8080/api/networks
+GET HTTP://localhost:8080/api/users/1

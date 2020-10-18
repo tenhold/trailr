@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-export const addEntryToLog = (title, text, idUser) =>
+export const addEntryToLog = (idUser, title, text) =>
   new Promise((resolve, reject) => {
     axios({
       method: 'post',
       url: '/api/entries',
       data: {
+        id_user: idUser,
         title,
         text,
-        id_user: idUser,
       },
     })
       .then((response) => {

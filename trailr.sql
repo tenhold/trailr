@@ -46,6 +46,7 @@ Create TABLE astrophotos (
   id int AUTO_INCREMENT,
   url varchar(255),
   description varchar(255),
+  id_user int,
   created_at timestamp,
   PRIMARY KEY (id),
   FOREIGN KEY (id_user) REFERENCES users(id)
@@ -82,15 +83,6 @@ CREATE TABLE comments (
   FOREIGN KEY (id_photo) REFERENCES photos(id)
 );
 
-CREATE TABLE favorites (
-  id int AUTO_INCREMENT,
-  id_user int,
-  id_trail int,
-  PRIMARY KEY (id),
-  FOREIGN KEY (id_user) REFERENCES users(id),
-  FOREIGN KEY (id_trail) REFERENCES trails(id)
-);
-
 CREATE TABLE entries (
   id int AUTO_INCREMENT,
   id_user int,
@@ -100,6 +92,16 @@ CREATE TABLE entries (
   PRIMARY KEY (id),
   FOREIGN KEY (id_user) REFERENCES users(id)
 );
+
+CREATE TABLE favorites (
+  id int AUTO_INCREMENT,
+  id_user int,
+  id_trail int,
+  PRIMARY KEY (id),
+  FOREIGN KEY (id_user) REFERENCES users(id),
+  FOREIGN KEY (id_trail) REFERENCES trails(id)
+);
+
 
 INSERT into users (google_id, name, profile_photo_url) VALUES ("100320448870922542711", "Daniel", "https://lh3.googleusercontent.com/a-/AOh14GgCnlLMDczQTYGKy6XfF5EeNsrbDXh4y8j3hLdNvw");
 INSERT into users (google_id, name, profile_photo_url) VALUES ("100876014081435780413", "Grant", "https://i.pinimg.com/originals/5c/66/c6/5c66c624f16feab720c601f832b2235e.jpg");
@@ -155,6 +157,8 @@ INSERT into rating_likeability (value, id_user, id_trail) VALUES ("2", "1", "3")
 INSERT into rating_likeability (value, id_user, id_trail) VALUES ("5", "3", "3");
 -- INSERT into rating_likeability (value, id_user, id_trail) VALUES ("", "", "");
 
+INSERT into entries (id_user, title, text) VALUES ("1", "Great hike!", "City park is so beautiful in October.");
+INSERT into entries (id_user, title, text) VALUES ("2", "Test", "Trailr rules!");
 
 -- mysql -u <USER> < trailr.sql
 -- mysql -u root < trailr.sql

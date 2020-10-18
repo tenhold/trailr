@@ -20,7 +20,6 @@ if (!process.env.NODE_ENV) {
     password: '',
     database: 'trailr',
   });
-  console.log('Running LOCAL');
 } else if (
   process.env.NODE_ENV === 'PROD_LOCAL' &&
   !process.env.DB_INSTANCE_CONNECTION_NAME
@@ -35,9 +34,7 @@ if (!process.env.NODE_ENV) {
     waitForConnections: true,
     queueLimit: 0,
   });
-  console.log('Running PROD_LOCAL');
 } else {
-  console.log(process.env.DB_USER, process.env.DB_INSTANCE_CONNECTION_NAME);
   poolConnection = mysql.createPool({
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
@@ -49,7 +46,7 @@ if (!process.env.NODE_ENV) {
     connectionLimit: 20,
     queueLimit: 20,
   });
-  console.log('Running CloudSQL');
+  console.info('Connected to CloudSQL');
 }
 
 /**
@@ -59,10 +56,8 @@ if (!process.env.NODE_ENV) {
 const getUser = (id) =>
   new Promise((resolve, reject) => {
     poolConnection.getConnection((error, connection) => {
-      // console.log('connection', connection);
       if (error) {
-        console.log('error in getUser', error);
-        // reject(error);
+        reject(error);
       }
       const getUserCommand = `
       SELECT *
@@ -200,7 +195,6 @@ const getUser = (id) =>
 const addUser = (userObject) =>
   new Promise((resolve, reject) => {
     poolConnection.getConnection((error, connection) => {
-      // console.log('line 200', connection);
       if (error) reject(error);
 
       const checkUserCommand = `
@@ -1250,15 +1244,13 @@ const updateComment = (commentObject) =>
     });
   });
 
-////////// HANGING CHADS ADDITION ////////////
-
 const addEntry = (entry) =>
   new Promise((resolve, reject) => {
     poolConnection.getConnection((error, connection) => {
       if (error) reject(error);
-      const { title, text, id_user } = entry;
+      const { id_user, title, text } = entry;
       const addEntryCommand = `
-      INSERT INTO entries (title, text, id_user)
+      INSERT INTO entries (id_user, title, text)
       VALUES (?, ?, ?)
     `;
 
@@ -1271,7 +1263,7 @@ const addEntry = (entry) =>
         }
         connection.query(
           addEntryCommand,
-          [title, text, id_user],
+          [id_user, title, text],
           (error, addedEntry) => {
             if (error) {
               connection.rollback(() => {

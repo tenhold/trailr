@@ -1,7 +1,8 @@
-import React, { useState, Component } from 'react';
+import React, { Component } from 'react';
 import TravellogForm from './TravellogForm.jsx';
 import { Button, Col, Row, Container } from 'reactstrap';
 import moment from 'moment';
+import axios from 'axios';
 
 class Travellog extends Component {
   constructor(props) {
@@ -14,6 +15,13 @@ class Travellog extends Component {
     this.handleSubmit.bind(this);
   }
 
+  componentDidMount() {
+    axios
+      .get('/api/entries')
+      .then((results) => {})
+      .catch((err) => {});
+  }
+
   removeEntry = (index) => {
     const { entries } = this.state;
     this.setState({
@@ -24,7 +32,9 @@ class Travellog extends Component {
   };
 
   handleSubmit = (entry) => {
-    this.setState({ entries: [...this.state.entries, entry] });
+    axios.post('/api/entries').then(({ id, title, text }) => {
+      this.setState({ entries: [...this.state.entries, entry] });
+    });
   };
 
   render() {
@@ -42,7 +52,6 @@ class Travellog extends Component {
   }
 }
 
-//////////////////////////////////////////////////////////////
 const LogHeader = () => {
   return (
     <div className='title-container'>
@@ -50,7 +59,6 @@ const LogHeader = () => {
     </div>
   );
 };
-//////////////////////////////////////////////////////////////
 const LogBody = (props) => {
   const m = moment();
   const date = m.format('dddd, MMMM Do YYYY');
