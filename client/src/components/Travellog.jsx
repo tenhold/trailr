@@ -1,17 +1,15 @@
 import React, { useState, Component } from 'react';
+import TravellogForm from './TravellogForm.jsx';
 
 class Travellog extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      entries: [
-        { title: 'First entry', body: 'This is my journal entry.' },
-        { title: 'Second entry', body: 'This is my journal entry.' },
-        { title: 'Third entry', body: 'This is my journal entry.' },
-      ],
+      entries: [],
     };
 
     this.removeEntry.bind(this);
+    this.handleSubmit.bind(this);
   }
 
   removeEntry = (index) => {
@@ -23,6 +21,10 @@ class Travellog extends Component {
     });
   };
 
+  handleSubmit = (entry) => {
+    this.setState({ entries: [...this.state.entries, entry] });
+  };
+
   render() {
     return (
       <div className='entries'>
@@ -31,6 +33,7 @@ class Travellog extends Component {
           entryData={this.state.entries}
           removeEntry={this.removeEntry}
         />
+        <TravellogForm handleSubmit={this.handleSubmit} />
       </div>
     );
   }
